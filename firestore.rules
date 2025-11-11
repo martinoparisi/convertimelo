@@ -1,0 +1,16 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Allow read/write access to conversions
+    match /conversions/{document} {
+      allow read: if true;
+      allow write: if true;
+    }
+    
+    // Allow read/write access to currency_cache
+    match /currency_cache/{document} {
+      allow read: if true;
+      allow write: if true;
+    }
+  }
+}
