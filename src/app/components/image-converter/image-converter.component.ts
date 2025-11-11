@@ -49,6 +49,12 @@ export class ImageConverterComponent {
     try {
       const url = await this.imageService.convertImage(this.selectedFile, this.targetFormat);
       this.convertedUrl = url;
+      
+      // Auto-download the converted image
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `converted_${this.selectedFile.name.split('.')[0]}.${this.targetFormat}`;
+      link.click();
     } catch (err: any) {
       this.error = 'Errore durante la conversione: ' + err.message;
     } finally {

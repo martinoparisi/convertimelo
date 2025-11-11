@@ -1,15 +1,10 @@
 import { Injectable } from '@angular/core';
-import { Firestore, collection, addDoc, getDocs } from '@angular/fire/firestore';
-import { Storage, ref, uploadBytes, getDownloadURL } from '@angular/fire/storage';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ImageConverterService {
-  constructor(
-    private firestore: Firestore,
-    private storage: Storage
-  ) {}
+  constructor() {}
 
   async convertImage(file: File, targetFormat: string): Promise<string> {
     return new Promise((resolve, reject) => {
@@ -38,22 +33,12 @@ export class ImageConverterService {
               return;
             }
             
-            // Upload to Firebase Storage
-            const storageRef = ref(this.storage, `converted/${Date.now()}_${file.name.split('.')[0]}.${targetFormat}`);
-            uploadBytes(storageRef, blob).then(() => {
-              return getDownloadURL(storageRef);
-            }).then((url) => {
-              // Save metadata to Firestore
-              const conversionsRef = collection(this.firestore, 'conversions');
-              addDoc(conversionsRef, {
-                originalName: file.name,
-                targetFormat: targetFormat,
-                timestamp: new Date(),
-                url: url
-              });
-              
-              resolve(url);
-            }).catch(reject);
+            // Create a downloadable URL
+            const url = URL.createObjectURL(blob);
+            
+            // Note: In production, you would upload to Firebase Storage here
+            // For now, we're just creating a local blob URL
+            resolve(url);
           }, mimeType);
         };
         
@@ -75,11 +60,5 @@ export class ImageConverterService {
       'bmp': 'image/bmp'
     };
     return mimeTypes[format.toLowerCase()] || 'image/png';
-  }
-
-  async getConversionHistory() {
-    const conversionsRef = collection(this.firestore, 'conversions');
-    const snapshot = await getDocs(conversionsRef);
-    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
   }
 }

@@ -20,7 +20,7 @@
   </div>
 
   <button (click)="convertImage()" [disabled]="!selectedFile || loading">
-    {{ loading ? 'Conversione in corso...' : 'Converti Immagine' }}
+    {{ loading ? 'Conversione in corso...' : 'Converti e Scarica Immagine' }}
   </button>
 
   <div *ngIf="loading" class="loading">
