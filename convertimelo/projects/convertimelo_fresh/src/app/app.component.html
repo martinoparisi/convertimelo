@@ -1,0 +1,34 @@
+<div class="container">
+  <h1>🔄 {{ title }} - Convertitore Universale</h1>
+  
+  <div class="nav-tabs">
+    <button class="nav-tab" [class.active]="activeTab === 'image'" (click)="setActiveTab('image')">
+      🖼️ Immagini
+    </button>
+    <button class="nav-tab" [class.active]="activeTab === 'currency'" (click)="setActiveTab('currency')">
+      💱 Valute
+    </button>
+    <button class="nav-tab" [class.active]="activeTab === 'unit'" (click)="setActiveTab('unit')">
+      📏 Unità
+    </button>
+    <button class="nav-tab" [class.active]="activeTab === 'text'" (click)="setActiveTab('text')">
+      📝 Testo
+    </button>
+  </div>
+
+  <div *ngIf="activeTab === 'image'">
+    <app-image-converter></app-image-converter>
+  </div>
+
+  <div *ngIf="activeTab === 'currency'">
+    <app-currency-converter></app-currency-converter>
+  </div>
+
+  <div *ngIf="activeTab === 'unit'">
+    <app-unit-converter></app-unit-converter>
+  </div>
+
+  <div *ngIf="activeTab === 'text'">
+    <app-text-utils></app-text-utils>
+  </div>
+</div>

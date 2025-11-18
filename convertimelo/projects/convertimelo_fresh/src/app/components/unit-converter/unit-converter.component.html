@@ -1,0 +1,47 @@
+<div class="converter-section">
+  <h2>📏 Convertitore di Unità</h2>
+  <p>Converti tra diverse unità di misura (lunghezza, peso, temperatura, volume)</p>
+
+  <div class="form-group">
+    <label>Categoria:</label>
+    <select [(ngModel)]="selectedCategory" (change)="onCategoryChange()">
+      <option *ngFor="let category of categories" [value]="category.name">{{ category.name }}</option>
+    </select>
+  </div>
+
+  <div class="grid">
+    <div class="form-group">
+      <label>Valore:</label>
+      <input type="number" [(ngModel)]="value" (ngModelChange)="convert()" step="0.01">
+    </div>
+
+    <div class="form-group">
+      <label>Da:</label>
+      <select [(ngModel)]="fromUnit" (change)="convert()">
+        <option *ngFor="let unit of availableUnits" [value]="unit">{{ unit }}</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>A:</label>
+      <select [(ngModel)]="toUnit" (change)="convert()">
+        <option *ngFor="let unit of availableUnits" [value]="unit">{{ unit }}</option>
+      </select>
+    </div>
+  </div>
+
+  <button (click)="swapUnits()" style="margin: 20px 0;">
+    🔄 Scambia unità
+  </button>
+
+  <div *ngIf="error" class="error">
+    {{ error }}
+  </div>
+
+  <div *ngIf="result !== null && !error" class="result">
+    <h3>📊 Risultato:</h3>
+    <p style="font-size: 1.5em; font-weight: bold;">
+      {{ value | number:'1.2-6' }} {{ fromUnit }} = {{ result | number:'1.2-6' }} {{ toUnit }}
+    </p>
+  </div>
+</div>
