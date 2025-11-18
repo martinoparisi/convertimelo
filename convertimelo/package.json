@@ -4,7 +4,7 @@
   "description": "Multi-purpose converter application with image, currency, unit, and text conversion",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
+    "start": "ng serve convertimelo_fresh",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
@@ -16,11 +16,11 @@
     "@angular/common": "^17.0.0",
     "@angular/compiler": "^17.0.0",
     "@angular/core": "^17.0.0",
+    "@angular/fire": "^17.0.0",
     "@angular/forms": "^17.0.0",
     "@angular/platform-browser": "^17.0.0",
     "@angular/platform-browser-dynamic": "^17.0.0",
     "@angular/router": "^17.0.0",
-    "@angular/fire": "^17.0.0",
     "firebase": "^10.7.0",
     "firebase-admin": "^12.0.0",
     "firebase-functions": "^4.5.0",
@@ -33,7 +33,7 @@
     "@angular/cli": "^17.0.0",
     "@angular/compiler-cli": "^17.0.0",
     "@types/node": "^20.0.0",
-    "typescript": "~5.2.2",
-    "firebase-tools": "^13.0.0"
+    "firebase-tools": "^13.0.0",
+    "typescript": "~5.2.2"
   }
 }

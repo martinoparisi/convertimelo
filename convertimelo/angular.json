@@ -1,6 +1,7 @@
 {
   "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
   "version": 1,
+  "defaultProject": "convertimelo_fresh",
   "newProjectRoot": "projects",
   "projects": {
     "convertimelo": {
@@ -20,17 +21,10 @@
             "outputPath": "dist/convertimelo",
             "index": "src/index.html",
             "main": "src/main.ts",
-            "polyfills": [
-              "zone.js"
-            ],
+            "polyfills": ["zone.js"],
             "tsConfig": "tsconfig.app.json",
-            "assets": [
-              "src/favicon.ico",
-              "src/assets"
-            ],
-            "styles": [
-              "src/styles.css"
-            ],
+            "assets": ["src/favicon.ico", "src/assets"],
+            "styles": ["src/styles.css"],
             "scripts": []
           },
           "configurations": {
@@ -81,22 +75,96 @@
         "test": {
           "builder": "@angular-devkit/build-angular:karma",
           "options": {
-            "polyfills": [
-              "zone.js",
-              "zone.js/testing"
-            ],
+            "polyfills": ["zone.js", "zone.js/testing"],
             "tsConfig": "tsconfig.spec.json",
+            "assets": ["src/favicon.ico", "src/assets"],
+            "styles": ["src/styles.css"],
+            "scripts": []
+          }
+        }
+      }
+    },
+    "convertimelo_fresh": {
+      "projectType": "application",
+      "schematics": {},
+      "root": "projects/convertimelo_fresh",
+      "sourceRoot": "projects/convertimelo_fresh/src",
+      "prefix": "app",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:application",
+          "options": {
+            "outputPath": "dist/convertimelo_fresh",
+            "index": "projects/convertimelo_fresh/src/index.html",
+            "browser": "projects/convertimelo_fresh/src/main.ts",
+            "polyfills": ["zone.js"],
+            "tsConfig": "projects/convertimelo_fresh/tsconfig.app.json",
             "assets": [
-              "src/favicon.ico",
-              "src/assets"
+              "projects/convertimelo_fresh/src/favicon.ico",
+              "projects/convertimelo_fresh/src/assets"
             ],
-            "styles": [
-              "src/styles.css"
+            "styles": ["projects/convertimelo_fresh/src/styles.css"],
+            "scripts": []
+          },
+          "configurations": {
+            "production": {
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "500kb",
+                  "maximumError": "1mb"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "2kb",
+                  "maximumError": "4kb"
+                }
+              ],
+              "outputHashing": "all"
+            },
+            "development": {
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": true
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "builder": "@angular-devkit/build-angular:dev-server",
+          "configurations": {
+            "production": {
+              "buildTarget": "convertimelo_fresh:build:production"
+            },
+            "development": {
+              "buildTarget": "convertimelo_fresh:build:development"
+            }
+          },
+          "defaultConfiguration": "development"
+        },
+        "extract-i18n": {
+          "builder": "@angular-devkit/build-angular:extract-i18n",
+          "options": {
+            "buildTarget": "convertimelo_fresh:build"
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "polyfills": ["zone.js", "zone.js/testing"],
+            "tsConfig": "projects/convertimelo_fresh/tsconfig.spec.json",
+            "assets": [
+              "projects/convertimelo_fresh/src/favicon.ico",
+              "projects/convertimelo_fresh/src/assets"
             ],
+            "styles": ["projects/convertimelo_fresh/src/styles.css"],
             "scripts": []
           }
         }
       }
     }
+  },
+  "cli": {
+    "analytics": false
   }
 }
