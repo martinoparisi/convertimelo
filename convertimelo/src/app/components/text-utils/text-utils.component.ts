@@ -1,35 +1,35 @@
-import { Component } from '@angular/core';
-import { TextUtilsService } from '../../services/text-utils.service';
+import { Component } from "@angular/core";
+import { TextUtilsService } from "../../services/text-utils.service";
 
 @Component({
-  selector: 'app-text-utils',
-  templateUrl: './text-utils.component.html',
-  styleUrls: ['./text-utils.component.css']
+  selector: "app-text-utils",
+  templateUrl: "./text-utils.component.html",
+  styleUrls: ["./text-utils.component.css"],
 })
 export class TextUtilsComponent {
-  inputText: string = '';
-  outputText: string = '';
-  searchTerm: string = '';
-  operation: string = 'stats';
-  
+  inputText: string = "";
+  outputText: string = "";
+  searchTerm: string = "";
+  operation: string = "stats";
+
   stats = {
     characters: 0,
     words: 0,
     lines: 0,
-    sentences: 0
+    sentences: 0,
   };
 
   constructor(private textService: TextUtilsService) {}
 
   processText() {
     if (!this.inputText) {
-      this.outputText = 'Inserisci del testo per elaborarlo';
+      this.outputText = "Inserisci del testo per elaborarlo";
       return;
     }
 
     try {
-      switch(this.operation) {
-        case 'stats':
+      switch (this.operation) {
+        case "stats":
           this.stats = this.textService.getTextStats(this.inputText);
           this.outputText = `Statistiche:
 - Caratteri: ${this.stats.characters}
@@ -37,73 +37,78 @@ export class TextUtilsComponent {
 - Righe: ${this.stats.lines}
 - Frasi: ${this.stats.sentences}`;
           break;
-        case 'uppercase':
+        case "uppercase":
           this.outputText = this.textService.toUpperCase(this.inputText);
           break;
-        case 'lowercase':
+        case "lowercase":
           this.outputText = this.textService.toLowerCase(this.inputText);
           break;
-        case 'titlecase':
+        case "titlecase":
           this.outputText = this.textService.toTitleCase(this.inputText);
           break;
-        case 'sentencecase':
+        case "sentencecase":
           this.outputText = this.textService.toSentenceCase(this.inputText);
           break;
-        case 'trim':
+        case "trim":
           this.outputText = this.textService.trimSpaces(this.inputText);
           break;
-        case 'reverse':
+        case "reverse":
           this.outputText = this.textService.reverseText(this.inputText);
           break;
-        case 'summarize':
+        case "summarize":
           this.outputText = this.textService.summarizeText(this.inputText, 3);
           break;
-        case 'count':
+        case "count":
           if (this.searchTerm) {
-            const count = this.textService.countOccurrences(this.inputText, this.searchTerm);
+            const count = this.textService.countOccurrences(
+              this.inputText,
+              this.searchTerm
+            );
             this.outputText = `"${this.searchTerm}" appare ${count} volte nel testo.`;
           } else {
-            this.outputText = 'Inserisci un termine da cercare';
+            this.outputText = "Inserisci un termine da cercare";
           }
           break;
-        case 'removeDuplicates':
-          this.outputText = this.textService.removeDuplicateLines(this.inputText);
+        case "removeDuplicates":
+          this.outputText = this.textService.removeDuplicateLines(
+            this.inputText
+          );
           break;
-        case 'sortAsc':
+        case "sortAsc":
           this.outputText = this.textService.sortLines(this.inputText, true);
           break;
-        case 'sortDesc':
+        case "sortDesc":
           this.outputText = this.textService.sortLines(this.inputText, false);
           break;
-        case 'base64Encode':
+        case "base64Encode":
           this.outputText = this.textService.encodeBase64(this.inputText);
           break;
-        case 'base64Decode':
+        case "base64Decode":
           this.outputText = this.textService.decodeBase64(this.inputText);
           break;
-        case 'urlEncode':
+        case "urlEncode":
           this.outputText = this.textService.encodeURL(this.inputText);
           break;
-        case 'urlDecode':
+        case "urlDecode":
           this.outputText = this.textService.decodeURL(this.inputText);
           break;
         default:
-          this.outputText = 'Operazione non valida';
+          this.outputText = "Operazione non valida";
       }
     } catch (err: any) {
-      this.outputText = 'Errore: ' + err.message;
+      this.outputText = "Errore: " + err.message;
     }
   }
 
   copyToClipboard() {
     navigator.clipboard.writeText(this.outputText).then(() => {
-      alert('Testo copiato negli appunti!');
+      alert("Testo copiato negli appunti!");
     });
   }
 
   clearAll() {
-    this.inputText = '';
-    this.outputText = '';
-    this.searchTerm = '';
+    this.inputText = "";
+    this.outputText = "";
+    this.searchTerm = "";
   }
 }

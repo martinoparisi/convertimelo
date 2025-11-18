@@ -1,19 +1,19 @@
-import { Component, OnInit } from '@angular/core';
-import { UnitConverterService } from '../../services/unit-converter.service';
+import { Component, OnInit } from "@angular/core";
+import { UnitConverterService } from "../../services/unit-converter.service";
 
 @Component({
-  selector: 'app-unit-converter',
-  templateUrl: './unit-converter.component.html',
-  styleUrls: ['./unit-converter.component.css']
+  selector: "app-unit-converter",
+  templateUrl: "./unit-converter.component.html",
+  styleUrls: ["./unit-converter.component.css"],
 })
 export class UnitConverterComponent implements OnInit {
   value: number = 1;
-  selectedCategory: string = 'Lunghezza';
-  fromUnit: string = 'metri';
-  toUnit: string = 'chilometri';
+  selectedCategory: string = "Lunghezza";
+  fromUnit: string = "metri";
+  toUnit: string = "chilometri";
   result: number = 0;
-  error: string = '';
-  
+  error: string = "";
+
   categories: any[] = [];
   availableUnits: string[] = [];
 
@@ -40,12 +40,12 @@ export class UnitConverterComponent implements OnInit {
 
   convert() {
     if (this.value === null || this.value === undefined) {
-      this.error = 'Inserisci un valore valido';
+      this.error = "Inserisci un valore valido";
       return;
     }
 
-    this.error = '';
-    
+    this.error = "";
+
     try {
       this.result = this.unitService.convert(
         this.value,
@@ -54,7 +54,7 @@ export class UnitConverterComponent implements OnInit {
         this.selectedCategory
       );
     } catch (err: any) {
-      this.error = 'Errore durante la conversione: ' + err.message;
+      this.error = "Errore durante la conversione: " + err.message;
       this.result = 0;
     }
   }
