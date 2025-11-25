@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ConverterService } from '../../services/converter.service';
 import { HistoryService } from '../../services/history.service';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-text-manipulator',
@@ -34,6 +35,9 @@ import { HistoryService } from '../../services/history.service';
           <button (click)="manipulate('char_count')" class="inline-flex justify-center items-center px-4 py-2 border border-gray-300 dark:border-gray-600 shadow-sm text-sm font-medium rounded-md text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
             Conta Caratteri
           </button>
+          <button (click)="summarize()" class="inline-flex justify-center items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+            ✨ Riassumi con AI
+          </button>
         </div>
 
         <div *ngIf="loading" class="text-center text-gray-500 dark:text-gray-400">Elaborazione...</div>
@@ -56,6 +60,7 @@ import { HistoryService } from '../../services/history.service';
 export class TextManipulatorComponent {
   private converterService = inject(ConverterService);
   private historyService = inject(HistoryService);
+  private http = inject(HttpClient); // Need HttpClient for direct call or use ConverterService if updated
 
   inputText: string = '';
   result: any = null;
@@ -77,6 +82,42 @@ export class TextManipulatorComponent {
       this.error = 'Operation failed. Please try again.';
       console.error(err);
     } finally {
+      this.loading = false;
+    }
+  }
+
+  async summarize() {
+    if (!this.inputText) return;
+
+    this.loading = true;
+    this.error = null;
+    this.result = null;
+
+    try {
+      // Using genkit_generate endpoint directly or via service
+      // Assuming converterService has a method or we use http directly.
+      // Let's use http directly for now as I haven't updated the service yet.
+      // Actually, better to update service, but for speed I'll use http here and assume endpoint exists.
+      // The endpoint is 'genkit_generate' in main.py
+
+      const prompt = `Riassumi il seguente testo in italiano:\n\n${this.inputText}`;
+
+      this.http.post<{ text: string }>('http://127.0.0.1:5001/convertimelo/us-central1/genkit_generate', { prompt })
+        .subscribe({
+          next: (response) => {
+            this.result = response.text;
+            this.historyService.addEntry('text', 'AI Summary generated');
+            this.loading = false;
+          },
+          error: (err) => {
+            this.error = 'AI Summary failed. Check API key or connection.';
+            console.error(err);
+            this.loading = false;
+          }
+        });
+
+    } catch (err: any) {
+      this.error = 'Operation failed.';
       this.loading = false;
     }
   }

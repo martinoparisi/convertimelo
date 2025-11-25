@@ -15,7 +15,7 @@ export const routes: Routes = [
     {
         path: '',
         component: MainLayoutComponent,
-        canActivate: [authGuard],
+        // canActivate: [authGuard], // Made optional as requested
         children: [
             { path: 'dashboard', component: DashboardComponent },
             { path: 'file-converter', component: FileConverterComponent },

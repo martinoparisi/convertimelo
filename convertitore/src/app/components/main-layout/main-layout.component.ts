@@ -14,12 +14,7 @@ import { NavbarComponent } from '../navbar/navbar.component';
       <!-- Tab Selector -->
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
         <div class="flex space-x-4 overflow-x-auto pb-2 border-b border-indigo-500/20">
-          <a routerLink="/dashboard" 
-             routerLinkActive="border-indigo-500 text-white bg-indigo-500/10 shadow-[0_0_10px_rgba(99,102,241,0.3)]" 
-             [routerLinkActiveOptions]="{exact: true}" 
-             class="px-4 py-2 rounded-t-lg font-medium text-sm text-gray-400 hover:text-white hover:bg-slate-800 transition-all duration-200 border-b-2 border-transparent whitespace-nowrap">
-            Dashboard
-          </a>
+
           <a routerLink="/file-converter" 
              routerLinkActive="border-indigo-500 text-white bg-indigo-500/10 shadow-[0_0_10px_rgba(99,102,241,0.3)]" 
              class="px-4 py-2 rounded-t-lg font-medium text-sm text-gray-400 hover:text-white hover:bg-slate-800 transition-all duration-200 border-b-2 border-transparent whitespace-nowrap">

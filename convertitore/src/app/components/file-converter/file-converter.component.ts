@@ -34,7 +34,7 @@ import { HttpClient } from '@angular/common/http';
               </label>
               <p class="pl-1">o trascina e rilascia</p>
             </div>
-            <p class="text-xs text-gray-500">PNG, JPG, GIF fino a 10MB</p>
+            <p class="text-xs text-gray-500">PNG, JPG, GIF, PDF, DOCX, MP4 fino a 10MB</p>
           </div>
         </div>
 
@@ -43,7 +43,13 @@ import { HttpClient } from '@angular/common/http';
           <div class="space-y-2">
             <h3 class="text-lg font-medium text-white">Anteprima</h3>
             <div class="relative h-64 bg-slate-900/50 rounded-lg overflow-hidden flex items-center justify-center border border-gray-700">
-              <img [src]="previewUrl" class="max-h-full max-w-full object-contain" alt="Preview">
+              <img *ngIf="isImage(selectedFile)" [src]="previewUrl" class="max-h-full max-w-full object-contain" alt="Preview">
+              <div *ngIf="!isImage(selectedFile)" class="text-center">
+                <svg class="mx-auto h-16 w-16 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 011.414.586l5.414 5.414a1 1 0 01.586 1.414V19a2 2 0 01-2 2z" />
+                </svg>
+                <p class="mt-2 text-sm text-gray-400">{{ selectedFile.name }}</p>
+              </div>
             </div>
             <p class="text-sm text-gray-400">{{ selectedFile.name }} ({{ formatSize(selectedFile.size) }})</p>
           </div>
@@ -54,13 +60,23 @@ import { HttpClient } from '@angular/common/http';
             <div>
               <label class="block text-sm font-medium text-gray-300">Formato di Destinazione</label>
               <select [(ngModel)]="targetFormat" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-600 bg-slate-800 text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md shadow-sm">
-                <option value="image/jpeg">JPEG</option>
-                <option value="image/png">PNG</option>
-                <option value="image/webp">WEBP</option>
+                <optgroup label="Immagini" *ngIf="isImage(selectedFile)">
+                    <option value="image/jpeg">JPEG</option>
+                    <option value="image/png">PNG</option>
+                    <option value="image/webp">WEBP</option>
+                </optgroup>
+                <optgroup label="Documenti" *ngIf="isDoc(selectedFile)">
+                    <option value="application/pdf">PDF</option>
+                    <option value="text/plain">TXT</option>
+                </optgroup>
+                <optgroup label="Video" *ngIf="isVideo(selectedFile)">
+                    <option value="audio/mp3">MP3 (Audio)</option>
+                    <option value="video/gif">GIF</option>
+                </optgroup>
               </select>
             </div>
 
-            <div *ngIf="targetFormat === 'image/jpeg' || targetFormat === 'image/webp'">
+            <div *ngIf="isImage(selectedFile) && (targetFormat === 'image/jpeg' || targetFormat === 'image/webp')">
               <label class="block text-sm font-medium text-gray-300">Qualità ({{ quality * 100 }}%)</label>
               <input type="range" [(ngModel)]="quality" min="0.1" max="1" step="0.1" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-indigo-500">
             </div>
@@ -117,16 +133,35 @@ export class FileConverterComponent {
   }
 
   handleFile(file: File) {
-    if (!file.type.startsWith('image/')) {
-      alert('Please upload an image file');
-      return;
-    }
     this.selectedFile = file;
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      this.previewUrl = e.target?.result as string;
-    };
-    reader.readAsDataURL(file);
+
+    // Set default target format based on type
+    if (this.isImage(file)) {
+      this.targetFormat = 'image/jpeg';
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        this.previewUrl = e.target?.result as string;
+      };
+      reader.readAsDataURL(file);
+    } else if (this.isDoc(file)) {
+      this.targetFormat = 'application/pdf';
+      this.previewUrl = null;
+    } else if (this.isVideo(file)) {
+      this.targetFormat = 'audio/mp3';
+      this.previewUrl = null;
+    }
+  }
+
+  isImage(file: File): boolean {
+    return file && file.type.startsWith('image/');
+  }
+
+  isDoc(file: File): boolean {
+    return file && (file.type.includes('pdf') || file.type.includes('document') || file.type.includes('text'));
+  }
+
+  isVideo(file: File): boolean {
+    return file && file.type.startsWith('video/');
   }
 
   formatSize(bytes: number): string {
@@ -138,21 +173,47 @@ export class FileConverterComponent {
   }
 
   convert() {
-    if (!this.selectedFile || !this.previewUrl) return;
+    if (!this.selectedFile) return;
 
     this.isConverting = true;
 
-    // Convert base64 to raw string (remove header)
-    // Actually the backend handles the header removal or we can send it as is.
-    // Let's send the full data URL.
+    // If previewUrl is available (images), use it. Otherwise read file.
+    if (this.previewUrl) {
+      this.sendConversionRequest(this.previewUrl);
+    } else {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const dataUrl = e.target?.result as string;
+        this.sendConversionRequest(dataUrl);
+      };
+      reader.readAsDataURL(this.selectedFile);
+    }
+  }
 
+  sendConversionRequest(fileData: string) {
     const payload = {
-      file: this.previewUrl,
-      format: this.targetFormat.split('/')[1].toUpperCase(), // image/jpeg -> JPEG
+      file: fileData,
+      format: this.targetFormat, // Send full mime type or just extension? Backend expects format. Let's send what backend expects.
+      // Backend expects 'JPEG', 'PNG' etc.
+      // But for new types it might expect 'PDF', 'TXT', 'MP3'.
+      // Let's adjust backend to handle mime types or just send the extension part.
+      // For now, let's send the mime type and handle it in backend, or split here.
+      // The current backend splits by '/' if I recall? No, it expects 'JPEG'.
+      // Let's update backend to be smarter. For now, I'll send the mapped format.
+
+      // Map mime to format string expected by backend
+      target_format_string: this.mapMimeToBackendFormat(this.targetFormat),
       quality: this.quality * 100
     };
 
-    this.http.post<{ file: string }>('http://127.0.0.1:5001/convertimelo/us-central1/file_converter', payload)
+    // Note: 'format' key in payload is what backend uses.
+    const finalPayload = {
+      file: fileData,
+      format: payload.target_format_string,
+      quality: payload.quality
+    };
+
+    this.http.post<{ file: string }>('http://127.0.0.1:5001/convertimelo/us-central1/file_converter', finalPayload)
       .subscribe({
         next: (response) => {
           this.downloadBase64(response.file);
@@ -161,10 +222,21 @@ export class FileConverterComponent {
         },
         error: (err) => {
           console.error('Conversion failed', err);
-          alert('Conversion failed: ' + err.message);
+          alert('Conversion failed: ' + (err.error?.error || err.message));
           this.isConverting = false;
         }
       });
+  }
+
+  mapMimeToBackendFormat(mime: string): string {
+    if (mime.includes('jpeg')) return 'JPEG';
+    if (mime.includes('png')) return 'PNG';
+    if (mime.includes('webp')) return 'WEBP';
+    if (mime.includes('pdf')) return 'PDF';
+    if (mime.includes('plain')) return 'TXT';
+    if (mime.includes('mp3')) return 'MP3';
+    if (mime.includes('gif')) return 'GIF';
+    return 'JPEG'; // Default
   }
 
   downloadBase64(dataUrl: string) {
