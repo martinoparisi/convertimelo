@@ -3,6 +3,41 @@
 @tailwind utilities;
 
 /* Custom Styles */
+:root {
+    --primary-glow: 0 0 15px rgba(124, 58, 237, 0.5);
+    --secondary-glow: 0 0 10px rgba(139, 92, 246, 0.3);
+}
+
 body {
-    @apply bg-gray-50 text-gray-900;
+    @apply bg-slate-900 text-gray-100 antialiased;
+}
+
+.glow-text {
+    text-shadow: 0 0 10px rgba(139, 92, 246, 0.5);
+}
+
+.glow-box {
+    box-shadow: var(--secondary-glow);
+    transition: all 0.3s ease;
+}
+
+.glow-box:hover {
+    box-shadow: var(--primary-glow);
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    @apply bg-slate-900;
+}
+
+::-webkit-scrollbar-thumb {
+    @apply bg-indigo-600 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    @apply bg-indigo-500;
 }

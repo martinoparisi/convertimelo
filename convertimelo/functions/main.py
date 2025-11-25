@@ -4,6 +4,9 @@ import pint
 import json
 import google.generativeai as genai
 import os
+from PIL import Image
+import io
+import base64
 
 initialize_app()
 ureg = pint.UnitRegistry()
@@ -80,13 +83,6 @@ def genkit_generate(req: https_fn.Request) -> https_fn.Response:
         data = req.get_json()
         prompt = data.get('prompt')
         
-        # Configure API key (should be in environment variables in production)
-        # For now, we assume it's set or we need to pass it. 
-        # Ideally: os.environ.get("GOOGLE_API_KEY")
-        # I'll use a placeholder or check if user provided one.
-        # The user provided a Firebase config but not a Gemini API key explicitly in the prompt.
-        # I will assume the environment has it or I'll use a placeholder.
-        
         api_key = os.environ.get("GOOGLE_API_KEY")
         if not api_key:
              return https_fn.Response(json.dumps({'error': 'API Key not configured'}), status=500)
@@ -98,3 +94,49 @@ def genkit_generate(req: https_fn.Request) -> https_fn.Response:
         return {'text': response.text}
     except Exception as e:
         raise e
+
+@https_fn.on_request()
+@cors_enabled
+def file_converter(req: https_fn.Request) -> https_fn.Response:
+    try:
+        data = req.get_json()
+        file_data = data.get('file') # Base64 encoded string
+        target_format = data.get('format') # e.g., 'JPEG', 'PNG', 'WEBP'
+        quality = data.get('quality', 80) # 0-100
+
+        if not file_data or not target_format:
+             return https_fn.Response(json.dumps({'error': 'Missing file or format'}), status=400)
+
+        # Decode base64
+        # Remove header if present (e.g., "data:image/png;base64,")
+        if ',' in file_data:
+            file_data = file_data.split(',')[1]
+        
+        image_bytes = base64.b64decode(file_data)
+        image = Image.open(io.BytesIO(image_bytes))
+
+        # Convert
+        output = io.BytesIO()
+        
+        # Handle transparency for JPEG
+        if target_format.upper() == 'JPEG' and image.mode in ('RGBA', 'LA'):
+            background = Image.new('RGB', image.size, (255, 255, 255))
+            background.paste(image, mask=image.split()[-1])
+            image = background
+        elif image.mode == 'P':
+             image = image.convert('RGB')
+
+        save_kwargs = {}
+        if target_format.upper() in ('JPEG', 'WEBP'):
+             save_kwargs['quality'] = int(quality)
+
+        image.save(output, format=target_format.upper(), **save_kwargs)
+        output.seek(0)
+        
+        converted_base64 = base64.b64encode(output.getvalue()).decode('utf-8')
+        mime_type = f"image/{target_format.lower()}"
+        
+        return {'file': f"data:{mime_type};base64,{converted_base64}"}
+
+    except Exception as e:
+        return https_fn.Response(json.dumps({'error': str(e)}), status=500)

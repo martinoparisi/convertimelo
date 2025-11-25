@@ -8,53 +8,32 @@ import { AuthService } from '../../services/auth.service';
   standalone: true,
   imports: [CommonModule, RouterLink, RouterLinkActive],
   template: `
-    <nav class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 transition-colors duration-200">
+    <nav class="bg-slate-900/80 backdrop-blur-md border-b border-indigo-500/30 sticky top-0 z-50 transition-all duration-300">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
           <div class="flex">
             <div class="flex-shrink-0 flex items-center">
-              <img class="h-8 w-auto" src="/assets/logoExtended.png" alt="Convertimelo">
+              <img class="h-10 w-auto drop-shadow-[0_0_8px_rgba(139,92,246,0.5)]" src="assets/logoExtended.png" alt="Convertimelo">
             </div>
-            <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
-              <a routerLink="/dashboard" routerLinkActive="border-indigo-500 text-gray-900 dark:text-white" [routerLinkActiveOptions]="{exact: true}" class="border-transparent text-gray-500 dark:text-gray-300 hover:border-gray-300 hover:text-gray-700 dark:hover:text-white inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors duration-200">
-                Dashboard
-              </a>
-              <a routerLink="/file-converter" routerLinkActive="border-indigo-500 text-gray-900 dark:text-white" class="border-transparent text-gray-500 dark:text-gray-300 hover:border-gray-300 hover:text-gray-700 dark:hover:text-white inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors duration-200">
-                File
-              </a>
-              <a routerLink="/unit-converter" routerLinkActive="border-indigo-500 text-gray-900 dark:text-white" class="border-transparent text-gray-500 dark:text-gray-300 hover:border-gray-300 hover:text-gray-700 dark:hover:text-white inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors duration-200">
-                Unità
-              </a>
-              <a routerLink="/currency-converter" routerLinkActive="border-indigo-500 text-gray-900 dark:text-white" class="border-transparent text-gray-500 dark:text-gray-300 hover:border-gray-300 hover:text-gray-700 dark:hover:text-white inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors duration-200">
-                Valuta
-              </a>
-              <a routerLink="/text-manipulator" routerLinkActive="border-indigo-500 text-gray-900 dark:text-white" class="border-transparent text-gray-500 dark:text-gray-300 hover:border-gray-300 hover:text-gray-700 dark:hover:text-white inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors duration-200">
-                Testo
-              </a>
-              <a routerLink="/genkit" routerLinkActive="border-indigo-500 text-gray-900 dark:text-white" class="border-transparent text-gray-500 dark:text-gray-300 hover:border-gray-300 hover:text-gray-700 dark:hover:text-white inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors duration-200">
-                AI Gen
-              </a>
-            </div>
+            <!-- Navigation links removed from here -->
           </div>
           <div class="flex items-center">
             <!-- Dark Mode Toggle -->
-            <button (click)="toggleDarkMode()" class="p-2 rounded-md text-gray-400 hover:text-gray-500 dark:hover:text-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-              <span class="sr-only">Toggle dark mode</span>
-              <!-- Sun icon -->
-              <svg *ngIf="isDarkMode()" class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-              </svg>
-              <!-- Moon icon -->
-              <svg *ngIf="!isDarkMode()" class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-              </svg>
-            </button>
+            <!-- Dark Mode Toggle (Removed as we are enforcing dark theme) -->
+            <!-- Profile Dropdown -->
 
             <!-- Profile Dropdown -->
             <div class="ml-3 relative hidden sm:block">
               <div class="flex items-center space-x-3">
-                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ (authService.user$ | async)?.email }}</span>
-                <button (click)="logout()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200">
+                <!-- History Link -->
+                <a routerLink="/dashboard" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center">
+                  <svg class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  Cronologia
+                </a>
+                <span class="text-sm font-medium text-gray-300">{{ (authService.user$ | async)?.email }}</span>
+                <button (click)="logout()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 shadow-[0_0_10px_rgba(79,70,229,0.3)] hover:shadow-[0_0_15px_rgba(99,102,241,0.5)]">
                   Esci
                 </button>
               </div>

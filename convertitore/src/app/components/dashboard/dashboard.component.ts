@@ -11,22 +11,22 @@ import { map } from 'rxjs';
   imports: [CommonModule, RouterLink],
   template: `
     <div class="space-y-6">
-      <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6 transition-colors duration-200">
-        <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Bentornato!</h2>
-        <p class="mt-2 text-gray-600 dark:text-gray-300">Seleziona uno strumento dalla barra di navigazione per iniziare.</p>
+      <div class="bg-slate-800/50 backdrop-blur-sm shadow-lg border border-indigo-500/20 rounded-lg p-6 transition-all duration-300 hover:shadow-[0_0_20px_rgba(79,70,229,0.15)]">
+        <h2 class="text-2xl font-bold text-white drop-shadow-[0_0_5px_rgba(139,92,246,0.5)]">Bentornato!</h2>
+        <p class="mt-2 text-gray-300">Seleziona uno strumento dalla barra di navigazione per iniziare.</p>
       </div>
 
-      <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6 transition-colors duration-200">
-        <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Attività Recente</h3>
+      <div class="bg-slate-800/50 backdrop-blur-sm shadow-lg border border-indigo-500/20 rounded-lg p-6 transition-all duration-300 hover:shadow-[0_0_20px_rgba(79,70,229,0.15)]">
+        <h3 class="text-lg font-medium text-white mb-4 drop-shadow-[0_0_5px_rgba(139,92,246,0.5)]">Attività Recente</h3>
         
         <div class="flow-root">
           <ul class="-mb-8">
             <li *ngFor="let item of history$ | async">
               <div class="relative pb-8">
-                <span class="absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200 dark:bg-gray-700" aria-hidden="true"></span>
+                <span class="absolute top-4 left-4 -ml-px h-full w-0.5 bg-indigo-500/20" aria-hidden="true"></span>
                 <div class="relative flex space-x-3">
                   <div>
-                    <span class="h-8 w-8 rounded-full bg-indigo-500 flex items-center justify-center ring-8 ring-white dark:ring-gray-800">
+                    <span class="h-8 w-8 rounded-full bg-indigo-600 flex items-center justify-center ring-8 ring-slate-900 shadow-[0_0_10px_rgba(79,70,229,0.5)]">
                       <!-- Icon based on type -->
                       <svg *ngIf="item.type === 'file'" class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -47,9 +47,9 @@ import { map } from 'rxjs';
                   </div>
                   <div class="min-w-0 flex-1 pt-1.5 flex justify-between space-x-4">
                     <div>
-                      <p class="text-sm text-gray-500 dark:text-gray-400">{{ item.details }}</p>
+                      <p class="text-sm text-gray-300">{{ item.details }}</p>
                     </div>
-                    <div class="text-right text-sm whitespace-nowrap text-gray-500 dark:text-gray-400">
+                    <div class="text-right text-sm whitespace-nowrap text-gray-400">
                       <time [dateTime]="item.timestamp.toDate()?.toISOString()">{{ item.timestamp.toDate() | date:'short' }}</time>
                     </div>
                   </div>
@@ -57,7 +57,7 @@ import { map } from 'rxjs';
               </div>
             </li>
           </ul>
-          <div *ngIf="(history$ | async)?.length === 0" class="text-center text-gray-500 dark:text-gray-400 py-4">
+          <div *ngIf="(history$ | async)?.length === 0" class="text-center text-gray-400 py-4">
             Nessuna attività recente.
           </div>
         </div>
