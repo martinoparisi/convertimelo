@@ -7,13 +7,15 @@ import {
   ElementRef,
   AfterViewInit,
   ViewChild,
+  OnInit,
+  OnDestroy,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { AuthService } from '../../services/auth.service';
 import { HistoryService } from '../../services/history.service';
-import { Firestore, doc, setDoc } from '@angular/fire/firestore';
+import { Firestore, doc, setDoc, onSnapshot } from '@angular/fire/firestore';
 import { LoginPopupComponent } from '../login-popup/login-popup.component';
 
 @Component({
@@ -245,11 +247,12 @@ import { LoginPopupComponent } from '../login-popup/login-popup.component';
   `,
   styles: [],
 })
-export class NavbarComponent implements AfterViewInit {
+export class NavbarComponent implements AfterViewInit, OnInit, OnDestroy {
   authService = inject(AuthService);
   private router = inject(Router);
   private historyService = inject(HistoryService);
   private firestore = inject(Firestore);
+  private userUnsubscribe: (() => void) | null = null;
 
   @ViewChildren('navItemDesktop') navItemsDesktop!: QueryList<ElementRef>;
   @ViewChildren('navItemMobile') navItemsMobile!: QueryList<ElementRef>;
@@ -292,6 +295,59 @@ export class NavbarComponent implements AfterViewInit {
     const savedUsername = localStorage.getItem('username');
     if (savedUsername) {
       this.username.set(savedUsername);
+    }
+  }
+
+  ngOnInit() {
+    // Listen to auth state changes
+    this.authService.user$.subscribe((user) => {
+      // Unsubscribe from previous user listener if any
+      if (this.userUnsubscribe) {
+        this.userUnsubscribe();
+        this.userUnsubscribe = null;
+      }
+
+      if (user) {
+        // Listen to user profile changes in real-time
+        const userDoc = doc(this.firestore, 'users', user.uid);
+        this.userUnsubscribe = onSnapshot(userDoc, (snapshot) => {
+          if (snapshot.exists()) {
+            const data = snapshot.data();
+
+            // Update username
+            if (data['username']) {
+              this.username.set(data['username']);
+              localStorage.setItem('username', data['username']);
+            }
+
+            // Update theme
+            if (data['theme']) {
+              const isDark = data['theme'] === 'dark';
+              this.isDarkMode.set(isDark);
+              if (isDark) {
+                document.documentElement.classList.add('dark');
+                localStorage.setItem('theme', 'dark');
+              } else {
+                document.documentElement.classList.remove('dark');
+                localStorage.setItem('theme', 'light');
+              }
+            }
+          }
+        });
+
+        // Sync any pending history
+        this.historyService.syncPendingOnLogin();
+      } else {
+        // Reset to local storage or defaults on logout
+        const savedUsername = localStorage.getItem('username');
+        this.username.set(savedUsername || '');
+      }
+    });
+  }
+
+  ngOnDestroy() {
+    if (this.userUnsubscribe) {
+      this.userUnsubscribe();
     }
   }
 

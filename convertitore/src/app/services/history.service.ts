@@ -17,9 +17,10 @@ import { AuthService } from './auth.service';
 import { Observable, switchMap, of } from 'rxjs';
 
 export interface HistoryEntry {
-  userId: string;
+  userId?: string;
   type: 'file' | 'unit' | 'currency' | 'text' | 'genkit';
-  details: string;
+  input: string;
+  output: string;
   timestamp: Timestamp;
 }
 
@@ -30,18 +31,18 @@ export class HistoryService {
   private firestore = inject(Firestore);
   private authService = inject(AuthService);
 
-  constructor() { }
+  constructor() {}
 
-  async addEntry(type: HistoryEntry['type'], details: string): Promise<void> {
+  async addEntry(type: HistoryEntry['type'], input: string, output: string): Promise<void> {
     try {
       // Prefer using observable user so we handle async init of Auth SDK
       const user = this.authService.auth.currentUser;
-      console.log('[HistoryService] addEntry called:', { type, details, user: user?.uid });
+      console.log('[HistoryService] addEntry called:', { type, input, output, user: user?.uid });
 
       const entry = {
-        userId: user?.uid ?? null,
         type,
-        details,
+        input,
+        output,
         timestamp: Timestamp.now(),
       };
 
@@ -55,7 +56,7 @@ export class HistoryService {
         return;
       }
 
-      const historyCollection = collection(this.firestore, 'history');
+      const historyCollection = collection(this.firestore, 'users', user.uid, 'history');
       const docRef = await addDoc(historyCollection, entry);
       console.log('[HistoryService] Entry added successfully:', docRef.id, entry);
     } catch (error) {
@@ -73,13 +74,8 @@ export class HistoryService {
           return of([]);
         }
 
-        const historyCollection = collection(this.firestore, 'history');
-        const q = query(
-          historyCollection,
-          where('userId', '==', user.uid),
-          orderBy('timestamp', 'desc'),
-          limit(10)
-        );
+        const historyCollection = collection(this.firestore, 'users', user.uid, 'history');
+        const q = query(historyCollection, orderBy('timestamp', 'desc'), limit(20));
 
         return collectionData(q, { idField: 'id' });
       })
@@ -93,10 +89,10 @@ export class HistoryService {
       const pending = JSON.parse(localStorage.getItem('pending_history') || '[]');
       if (!pending || !pending.length) return;
 
-      const historyCollection = collection(this.firestore, 'history');
+      const historyCollection = collection(this.firestore, 'users', user.uid, 'history');
       for (const entry of pending) {
         try {
-          const toSave = { ...entry, userId: user.uid, timestamp: Timestamp.now() };
+          const toSave = { ...entry, timestamp: Timestamp.now() };
           await addDoc(historyCollection, toSave as any);
         } catch (err) {
           console.error('[HistoryService] Failed syncing entry', entry, err);
@@ -115,9 +111,8 @@ export class HistoryService {
     }
 
     try {
-      const historyCollection = collection(this.firestore, 'history');
-      const q = query(historyCollection, where('userId', '==', user.uid));
-      const snapshot = await getDocs(q);
+      const historyCollection = collection(this.firestore, 'users', user.uid, 'history');
+      const snapshot = await getDocs(historyCollection);
       // Delete each doc by id
       for (const docSnap of snapshot.docs) {
         try {

@@ -9,8 +9,14 @@ import { HistoryService } from '../../services/history.service';
   standalone: true,
   imports: [CommonModule, FormsModule],
   template: `
-    <div class="bg-white/80 dark:bg-slate-800/50 backdrop-blur-sm shadow-lg border border-gray-200 dark:border-indigo-500/20 rounded-lg p-6 transition-all duration-300 hover:shadow-[0_0_20px_rgba(79,70,229,0.15)]">
-      <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6 drop-shadow-[0_0_5px_rgba(139,92,246,0.5)]">Manipolatore di Testo</h2>
+    <div
+      class="bg-white/80 dark:bg-slate-800/50 backdrop-blur-sm shadow-lg border border-gray-200 dark:border-indigo-500/20 rounded-lg p-6 transition-all duration-300 hover:shadow-[0_0_20px_rgba(79,70,229,0.15)]"
+    >
+      <h2
+        class="text-2xl font-bold text-gray-900 dark:text-white mb-6 drop-shadow-[0_0_5px_rgba(139,92,246,0.5)]"
+      >
+        Manipolatore di Testo
+      </h2>
 
       <div class="space-y-6">
         <div>
@@ -25,42 +31,42 @@ import { HistoryService } from '../../services/history.service';
           ></textarea>
         </div>
 
-        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2">
           <button
             (click)="manipulate('uppercase')"
-            class="inline-flex justify-center items-center px-4 py-2 border border-gray-300 dark:border-indigo-500/30 shadow-sm text-sm font-medium rounded-md text-gray-700 dark:text-gray-200 bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
+            class="inline-flex justify-center items-center px-3 py-1.5 border border-gray-300 dark:border-indigo-500/30 shadow-sm text-xs font-medium rounded-md text-gray-700 dark:text-gray-200 bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
           >
-            Maiuscolo
+            ABC
           </button>
           <button
             (click)="manipulate('lowercase')"
-            class="inline-flex justify-center items-center px-4 py-2 border border-gray-300 dark:border-indigo-500/30 shadow-sm text-sm font-medium rounded-md text-gray-700 dark:text-gray-200 bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
+            class="inline-flex justify-center items-center px-3 py-1.5 border border-gray-300 dark:border-indigo-500/30 shadow-sm text-xs font-medium rounded-md text-gray-700 dark:text-gray-200 bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
           >
-            Minuscolo
+            abc
           </button>
           <button
             (click)="manipulate('reverse')"
-            class="inline-flex justify-center items-center px-4 py-2 border border-gray-300 dark:border-indigo-500/30 shadow-sm text-sm font-medium rounded-md text-gray-700 dark:text-gray-200 bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
+            class="inline-flex justify-center items-center px-3 py-1.5 border border-gray-300 dark:border-indigo-500/30 shadow-sm text-xs font-medium rounded-md text-gray-700 dark:text-gray-200 bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
           >
-            Inverti
+            cbA
           </button>
           <button
             (click)="manipulate('word_count')"
-            class="inline-flex justify-center items-center px-4 py-2 border border-gray-300 dark:border-indigo-500/30 shadow-sm text-sm font-medium rounded-md text-gray-700 dark:text-gray-200 bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
+            class="inline-flex justify-center items-center px-3 py-1.5 border border-gray-300 dark:border-indigo-500/30 shadow-sm text-xs font-medium rounded-md text-gray-700 dark:text-gray-200 bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
           >
-            Conta Parole
+            Conta parole
           </button>
           <button
             (click)="manipulate('char_count')"
-            class="inline-flex justify-center items-center px-4 py-2 border border-gray-300 dark:border-indigo-500/30 shadow-sm text-sm font-medium rounded-md text-gray-700 dark:text-gray-200 bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
+            class="inline-flex justify-center items-center px-3 py-1.5 border border-gray-300 dark:border-indigo-500/30 shadow-sm text-xs font-medium rounded-md text-gray-700 dark:text-gray-200 bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
           >
-            Conta Caratteri
+            Conta caratteri
           </button>
           <button
             (click)="summarize()"
-            class="inline-flex justify-center items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all shadow-[0_0_10px_rgba(139,92,246,0.3)] hover:shadow-[0_0_15px_rgba(139,92,246,0.5)]"
+            class="inline-flex justify-center items-center px-3 py-1.5 border border-transparent shadow-sm text-xs font-medium rounded-md text-white bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all shadow-[0_0_10px_rgba(139,92,246,0.3)] hover:shadow-[0_0_15px_rgba(139,92,246,0.5)]"
           >
-            ✨ Riassumi con AI
+            ✨ Riassunto AI
           </button>
         </div>
 
@@ -109,7 +115,7 @@ export class TextManipulatorComponent {
     try {
       const response = await this.converterService.manipulateText(this.inputText, operation);
       this.result = response.result;
-      this.historyService.addEntry('text', `Manipulated text: ${operation}`);
+      this.historyService.addEntry('text', `Operation: ${operation}`, this.result || '');
     } catch (err: any) {
       this.error = 'Operation failed. Please try again.';
       console.error(err);
@@ -129,7 +135,7 @@ export class TextManipulatorComponent {
       const prompt = `Riassumi il seguente testo in italiano:\n\n${this.inputText}`;
       const resp: any = await this.converterService.generateContent(prompt);
       this.result = resp.text ?? resp.result ?? resp.output ?? JSON.stringify(resp);
-      this.historyService.addEntry('text', 'AI Summary generated');
+      this.historyService.addEntry('text', 'AI Summary', this.result || '');
       this.loading = false;
     } catch (err: any) {
       this.error = 'Operation failed.';

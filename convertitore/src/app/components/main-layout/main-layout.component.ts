@@ -11,14 +11,13 @@ import { NavbarComponent } from '../navbar/navbar.component';
     <div class="min-h-screen bg-gray-50 dark:bg-slate-900 transition-colors duration-200">
       <app-navbar></app-navbar>
 
-
       <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        <div class="px-4 py-6 sm:px-0">
+        <div class="px-4 sm:px-0">
           <router-outlet></router-outlet>
         </div>
       </main>
     </div>
   `,
-  styles: []
+  styles: [],
 })
-export class MainLayoutComponent { }
+export class MainLayoutComponent {}

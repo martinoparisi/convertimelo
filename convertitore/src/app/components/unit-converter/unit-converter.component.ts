@@ -9,8 +9,14 @@ import { HistoryService } from '../../services/history.service';
   standalone: true,
   imports: [CommonModule, FormsModule],
   template: `
-    <div class="bg-white/80 dark:bg-slate-800/50 backdrop-blur-sm shadow-lg border border-gray-200 dark:border-indigo-500/20 rounded-lg p-6 transition-all duration-300 hover:shadow-[0_0_20px_rgba(79,70,229,0.15)]">
-      <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6 drop-shadow-[0_0_5px_rgba(139,92,246,0.5)]">Convertitore Unità</h2>
+    <div
+      class="bg-white/80 dark:bg-slate-800/50 backdrop-blur-sm shadow-lg border border-gray-200 dark:border-indigo-500/20 rounded-lg p-6 transition-all duration-300 hover:shadow-[0_0_20px_rgba(79,70,229,0.15)]"
+    >
+      <h2
+        class="text-2xl font-bold text-gray-900 dark:text-white mb-6 drop-shadow-[0_0_5px_rgba(139,92,246,0.5)]"
+      >
+        Convertitore Unità
+      </h2>
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
         <div>
@@ -85,9 +91,13 @@ import { HistoryService } from '../../services/history.service';
         class="mt-8 p-4 bg-gray-100 dark:bg-slate-900/50 rounded-lg border border-gray-200 dark:border-indigo-500/30 text-center"
       >
         <p class="text-sm text-gray-500 dark:text-gray-400">Risultato</p>
-        <p class="text-3xl font-bold text-gray-900 dark:text-white mt-1 drop-shadow-[0_0_5px_rgba(139,92,246,0.5)]">
+        <p
+          class="text-3xl font-bold text-gray-900 dark:text-white mt-1 drop-shadow-[0_0_5px_rgba(139,92,246,0.5)]"
+        >
           {{ result | number : '1.0-4' }}
-          <span class="text-lg font-normal text-indigo-600 dark:text-indigo-300">{{ resultUnit }}</span>
+          <span class="text-lg font-normal text-indigo-600 dark:text-indigo-300">{{
+            resultUnit
+          }}</span>
         </p>
       </div>
 
@@ -151,12 +161,8 @@ export class UnitConverterComponent {
         try {
           this.historyService.addEntry(
             'unit',
-            JSON.stringify({
-              value: this.value,
-              from: this.fromUnit,
-              to: this.toUnit,
-              result: this.result,
-            })
+            `${this.value} ${this.fromUnit}`,
+            `${this.result} ${this.toUnit}`
           );
         } catch (e) {
           console.warn('Could not add history entry', e);

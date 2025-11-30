@@ -1,15 +1,7 @@
 {
   // Example (Standard Edition):
   //
-  // "indexes": [
-  //   {
-  //     "collectionGroup": "widgets",
-  //     "queryScope": "COLLECTION",
-  //     "fields": [
-  //       { "fieldPath": "foo", "arrayConfig": "CONTAINS" },
-  //       { "fieldPath": "bar", "mode": "DESCENDING" }
-  //     ]
-  //   },
+  "indexes": [],
   //
   //  "fieldOverrides": [
   //    {

@@ -9,46 +9,86 @@ import { HistoryService } from '../../services/history.service';
   standalone: true,
   imports: [CommonModule, FormsModule],
   template: `
-    <div class="bg-white/80 dark:bg-slate-800/50 backdrop-blur-sm shadow-lg border border-gray-200 dark:border-indigo-500/20 rounded-lg p-6 transition-all duration-300 hover:shadow-[0_0_20px_rgba(79,70,229,0.15)]">
-      <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6 drop-shadow-[0_0_5px_rgba(139,92,246,0.5)]">Convertitore Valuta</h2>
-      
+    <div
+      class="bg-white/80 dark:bg-slate-800/50 backdrop-blur-sm shadow-lg border border-gray-200 dark:border-indigo-500/20 rounded-lg p-6 transition-all duration-300 hover:shadow-[0_0_20px_rgba(79,70,229,0.15)]"
+    >
+      <h2
+        class="text-2xl font-bold text-gray-900 dark:text-white mb-6 drop-shadow-[0_0_5px_rgba(139,92,246,0.5)]"
+      >
+        Convertitore Valuta
+      </h2>
+
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
         <div>
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Importo</label>
-          <input type="number" [(ngModel)]="amount" (ngModelChange)="convert()" class="mt-1 block w-full border-gray-300 dark:border-gray-600 bg-white dark:bg-slate-900/50 text-gray-900 dark:text-white rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm p-2 border placeholder-gray-400 dark:placeholder-gray-500">
+          <input
+            type="number"
+            [(ngModel)]="amount"
+            (ngModelChange)="convert()"
+            class="mt-1 block w-full border-gray-300 dark:border-gray-600 bg-white dark:bg-slate-900/50 text-gray-900 dark:text-white rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm p-2 border placeholder-gray-400 dark:placeholder-gray-500"
+          />
         </div>
 
         <div>
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Da</label>
-          <select [(ngModel)]="fromCurrency" (ngModelChange)="onFromCurrencyChange()" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600 bg-white dark:bg-slate-900/50 text-gray-900 dark:text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md border">
-            <option *ngFor="let currency of currencies" [value]="currency" class="bg-white dark:bg-slate-800">{{ currency }}</option>
+          <select
+            [(ngModel)]="fromCurrency"
+            (ngModelChange)="onFromCurrencyChange()"
+            class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600 bg-white dark:bg-slate-900/50 text-gray-900 dark:text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md border"
+          >
+            <option
+              *ngFor="let currency of currencies"
+              [value]="currency"
+              class="bg-white dark:bg-slate-800"
+            >
+              {{ currency }}
+            </option>
           </select>
         </div>
 
         <div>
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">A</label>
-          <select [(ngModel)]="toCurrency" (ngModelChange)="convert()" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600 bg-white dark:bg-slate-900/50 text-gray-900 dark:text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md border">
-            <option *ngFor="let currency of currencies" [value]="currency" class="bg-white dark:bg-slate-800">{{ currency }}</option>
+          <select
+            [(ngModel)]="toCurrency"
+            (ngModelChange)="convert()"
+            class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600 bg-white dark:bg-slate-900/50 text-gray-900 dark:text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md border"
+          >
+            <option
+              *ngFor="let currency of currencies"
+              [value]="currency"
+              class="bg-white dark:bg-slate-800"
+            >
+              {{ currency }}
+            </option>
           </select>
         </div>
       </div>
 
-      <div class="mt-8 p-6 bg-gray-100 dark:bg-slate-900/50 rounded-lg border border-gray-200 dark:border-indigo-500/30 text-center">
+      <div
+        class="mt-8 p-6 bg-gray-100 dark:bg-slate-900/50 rounded-lg border border-gray-200 dark:border-indigo-500/30 text-center"
+      >
         <div *ngIf="loading" class="text-gray-500 dark:text-gray-400">Caricamento tassi...</div>
         <div *ngIf="!loading && result !== null">
           <p class="text-sm text-gray-500 dark:text-gray-400">
-            1 {{ fromCurrency }} = {{ rate | number:'1.2-4' }} {{ toCurrency }}
+            1 {{ fromCurrency }} = {{ rate | number : '1.2-4' }} {{ toCurrency }}
           </p>
-          <p class="text-4xl font-bold text-gray-900 dark:text-white mt-2 drop-shadow-[0_0_5px_rgba(139,92,246,0.5)]">
-            {{ result | number:'1.2-2' }} <span class="text-xl font-normal text-indigo-600 dark:text-indigo-300">{{ toCurrency }}</span>
+          <p
+            class="text-4xl font-bold text-gray-900 dark:text-white mt-2 drop-shadow-[0_0_5px_rgba(139,92,246,0.5)]"
+          >
+            {{ result | number : '1.2-2' }}
+            <span class="text-xl font-normal text-indigo-600 dark:text-indigo-300">{{
+              toCurrency
+            }}</span>
           </p>
-          <p class="text-xs text-gray-500 mt-2">Ultimo aggiornamento: {{ lastUpdated | date:'medium' }}</p>
+          <p class="text-xs text-gray-500 mt-2">
+            Ultimo aggiornamento: {{ lastUpdated | date : 'medium' }}
+          </p>
         </div>
         <div *ngIf="error" class="text-red-600 dark:text-red-400">{{ error }}</div>
       </div>
     </div>
   `,
-  styles: []
+  styles: [],
 })
 export class CurrencyConverterComponent implements OnInit {
   private converterService = inject(ConverterService);
@@ -78,7 +118,7 @@ export class CurrencyConverterComponent implements OnInit {
       this.lastUpdated = new Date(data.time_last_updated * 1000); // API returns unix timestamp
 
       // Update available currencies if needed, or just keep static list
-      // this.currencies = Object.keys(this.rates); 
+      // this.currencies = Object.keys(this.rates);
 
       this.convert();
     } catch (err) {
@@ -97,7 +137,11 @@ export class CurrencyConverterComponent implements OnInit {
     if (this.rates[this.toCurrency]) {
       this.rate = this.rates[this.toCurrency];
       this.result = this.amount * this.rate;
-      this.historyService.addEntry('currency', `Converted ${this.amount} ${this.fromCurrency} to ${this.toCurrency}`);
+      this.historyService.addEntry(
+        'currency',
+        `${this.amount} ${this.fromCurrency}`,
+        `${this.result?.toFixed(2)} ${this.toCurrency}`
+      );
     }
   }
 }

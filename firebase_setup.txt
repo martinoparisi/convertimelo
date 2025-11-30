@@ -1,0 +1,37 @@
+ISTRUZIONI AGGIORNATE PER LA CONFIGURAZIONE DI FIREBASE (Nuova Struttura)
+
+Abbiamo riorganizzato il database per essere più ordinato e sicuro.
+Ora ogni utente ha il suo documento nella collezione 'users', che contiene:
+- Profilo (username, preferenza tema)
+- Sottocollezione 'history' per la cronologia personale
+
+1. REGOLE DI SICUREZZA (Firestore Rules)
+Copia e incolla queste regole nella sezione "Rules" della console Firebase:
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Regole per la collezione 'users' e le sue sottocollezioni
+    match /users/{userId} {
+      // L'utente può leggere e scrivere il proprio profilo
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+      
+      // L'utente può leggere e scrivere la propria cronologia
+      match /history/{historyId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+    }
+
+    // Regola generica di fallback (opzionale)
+    match /{document=**} {
+      allow read, write: if request.time < timestamp.date(2025, 12, 21);
+    }
+  }
+}
+
+2. INDICI (Firestore Indexes)
+Con la nuova struttura a sottocollezioni, per la visualizzazione base della cronologia (ordinata per data), NON servono indici composti personalizzati. Firestore gestisce automaticamente l'indice per il campo 'timestamp'.
+
+Se in futuro vorrai filtrare la cronologia per 'tipo' E ordinare per 'data' contemporaneamente, dovrai creare un indice. Ma per ora non è necessario fare nulla nella sezione Indexes.
+Puoi cancellare eventuali indici vecchi se vuoi fare pulizia.

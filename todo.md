@@ -2,21 +2,15 @@
 - 
 
 # cloude sonnet 4.5 thinking
-- nel manipolatore di testo fai funzionare l'ai di riassunto (usando le funzioni AI di firebase)
-- ho notato anche che la cronologia non si salva nel database, ma rimane fino a che la pagina non viene aggiornata, vorrei che si salvasse nel database (se necessario fammi un file txt con le cose da copiare su firebase per creare la struttura del database), mi da questo errore nella console: 
-history.service.ts:62 [HistoryService] Error adding entry: FirebaseError: Missing or insufficient permissions.
-- sposta il pulsante per svuotare la cronologia nella pagina di cronologia (o dashboard)
-- metti una leggera ombra scura dietro il logo dell'header così che sia visibile anche con la dark mode
-- nel convertitore di testo i tasti delle varie funzioni vorrei che fossero invece che maiuscolo, minuscolo, inverti, conta parole, conta caratteri e riassumi con ai vorrei che diventassero "ABC", "abc", "cbA", "Conta parole", "Conta caratteri" e "✨ Riassunto AI", inoltre rendili più piccoli in modo che ci stiano in una riga da desktop
+- nel manipolatore di testo fai funzionare l'ai di riassunto (usando le funzioni AI di firebase) dimmi tu cosa fare anche su firebase
 
 # grandi richieste
-- vorrei che l'utente potesse scegliere il nome utente, e che per ogni utente sia salvato il nel database il nome utente, la preferenza di tema (chiaro o scuro) e le conversioni effettuate (per ogni conversione salvare la data, l'ora, il tipo di conversione, il risultato e la conversione ECCETTO PER I FILE, DEVE SOLO ESSERCI IL NOME DEL FILE E NON IL FILE)
 - è successa una cosa strana, ovvero, appena ho aperto l'app la pill di selezione era un piccolo pallino del colore di sfondo e non aveva dentro niente, poi quando cliccavo su un tasto qualsiasi di quelli disponibili (cronologia o dark mode) si "svegliava" e mostrava al suo interno i tipi di conversione, però adesso non lo fa più, no so cosa possa essere stato, dai una controllata. già che ci sei sposta quella pill al centro dell'header (solo da desktop, voglio che su mobile rimanga sotto l'header). inoltre cambia "immagine" in "file". poi c'è un altro problema, quando clicco su un qualsiasi convertitore il "selettore" della pill si sposta su quella scheda, tranne che per "file" per il quale devo cliccare una seconda volta
 
-# piccole richieste
-- risolvi tutti i warning e errori nel terminale qualora ce ne fossero
 
 # subito
+- quando provo ad aggiornare la cronologia mi da questo problema
+history.service.ts:62 [HistoryService] Error adding entry: FirebaseError: Missing or insufficient permissions.
 - il convertitore di unità da questo errore quando è usato "unit-converter.component.ts:131 HttpErrorResponse
 (anonymous) @ unit-converter.component.ts:131
 127.0.0.1:5001/convertimelo/us-central1/unit_converter:1  Failed to load resource: net::ERR_CONNECTION_REFUSED"
