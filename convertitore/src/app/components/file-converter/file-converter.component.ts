@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HistoryService } from '../../services/history.service';
 import { HttpClient } from '@angular/common/http';
+import { ConverterService } from '../../services/converter.service';
 
 @Component({
   selector: 'app-file-converter',
@@ -30,7 +31,7 @@ import { HttpClient } from '@angular/common/http';
             <div class="flex text-sm text-gray-400">
               <label for="file-upload" class="relative cursor-pointer rounded-md font-medium text-indigo-400 hover:text-indigo-300 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500 hover:underline">
                 <span>Carica un file</span>
-                <input id="file-upload" name="file-upload" type="file" class="sr-only" accept="image/*" (change)="onFileSelected($event)">
+                <input id="file-upload" name="file-upload" type="file" class="sr-only" (change)="onFileSelected($event)">
               </label>
               <p class="pl-1">o trascina e rilascia</p>
             </div>
@@ -90,11 +91,12 @@ import { HttpClient } from '@angular/common/http';
       </div>
     </div>
   `,
-  styles: []
+  styles: [],
 })
 export class FileConverterComponent {
   private historyService = inject(HistoryService);
   private http = inject(HttpClient);
+  private converterService = inject(ConverterService);
 
   selectedFile: File | null = null;
   previewUrl: string | null = null;
@@ -157,7 +159,10 @@ export class FileConverterComponent {
   }
 
   isDoc(file: File): boolean {
-    return file && (file.type.includes('pdf') || file.type.includes('document') || file.type.includes('text'));
+    return (
+      file &&
+      (file.type.includes('pdf') || file.type.includes('document') || file.type.includes('text'))
+    );
   }
 
   isVideo(file: File): boolean {
@@ -203,28 +208,30 @@ export class FileConverterComponent {
 
       // Map mime to format string expected by backend
       target_format_string: this.mapMimeToBackendFormat(this.targetFormat),
-      quality: this.quality * 100
+      quality: this.quality * 100,
     };
 
     // Note: 'format' key in payload is what backend uses.
     const finalPayload = {
       file: fileData,
       format: payload.target_format_string,
-      quality: payload.quality
+      quality: payload.quality,
     };
 
-    this.http.post<{ file: string }>('http://127.0.0.1:5001/convertimelo/us-central1/file_converter', finalPayload)
-      .subscribe({
-        next: (response) => {
-          this.downloadBase64(response.file);
-          this.historyService.addEntry('file', `Converted ${this.selectedFile?.name} to ${this.targetFormat}`);
-          this.isConverting = false;
-        },
-        error: (err) => {
-          console.error('Conversion failed', err);
-          alert('Conversion failed: ' + (err.error?.error || err.message));
-          this.isConverting = false;
-        }
+    this.converterService
+      .convertFile(finalPayload)
+      .then((response: any) => {
+        this.downloadBase64(response.file);
+        this.historyService.addEntry(
+          'file',
+          `Converted ${this.selectedFile?.name} to ${this.targetFormat}`
+        );
+        this.isConverting = false;
+      })
+      .catch((err) => {
+        console.error('Conversion failed', err);
+        alert('Conversion failed: ' + (err.error?.error || err.message || err));
+        this.isConverting = false;
       });
   }
 
