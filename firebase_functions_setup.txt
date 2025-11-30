@@ -1,0 +1,28 @@
+ISTRUZIONI PER IL DEPLOY DELLE FUNZIONI PYTHON
+
+Hai configurato il progetto per usare Python per le Cloud Functions, ma sembra che non siano ancora state caricate su Firebase (o non siano aggiornate), motivo per cui vedi errori di connessione (CORS o Connection Refused).
+
+Ecco come risolvere:
+
+1. Assicurati di avere Python installato sul tuo computer (versione 3.11 o 3.12 raccomandata).
+
+2. Apri un terminale nella cartella 'convertimelo' (quella che contiene firebase.json).
+
+3. Esegui il deploy delle funzioni con questo comando:
+   firebase deploy --only functions
+
+   Nota: Se è la prima volta che usi funzioni Python, potrebbe chiederti di abilitare le API necessarie sulla console Google Cloud. Segui i link che ti fornirà il terminale se necessario.
+
+4. Una volta completato il deploy, il terminale ti mostrerà gli URL delle funzioni (es. https://us-central1-convertimelo.cloudfunctions.net/unit_converter).
+
+5. L'applicazione Angular è già configurata per usare questi URL (o l'emulatore se attivo), quindi una volta fatto il deploy dovrebbe funzionare tutto.
+
+SE VUOI USARE L'EMULATORE LOCALE (Testare senza deployare):
+1. Devi avviare l'emulatore delle funzioni.
+2. Apri un secondo terminale e esegui:
+   firebase emulators:start --only functions
+3. Questo avvierà le funzioni all'indirizzo locale (es. http://127.0.0.1:5001/...).
+4. Assicurati che il tuo frontend stia puntando a questo indirizzo (il codice attuale prova prima l'emulatore, poi il cloud).
+
+NOTA SUI FILE RIMOSSI:
+Ho rimosso i file 'package.json' e 'tsconfig.json' dalla cartella 'functions' perché erano per Node.js, mentre tu vuoi usare Python. Ora la configurazione è pulita per Python.

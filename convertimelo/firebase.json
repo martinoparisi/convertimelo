@@ -1,11 +1,7 @@
 {
   "hosting": {
     "public": "dist/convertimelo",
-    "ignore": [
-      "firebase.json",
-      "**/.*",
-      "**/node_modules/**"
-    ],
+    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
     "rewrites": [
       {
         "source": "**",
@@ -25,9 +21,6 @@
   "functions": [
     {
       "codebase": "default",
-      "predeploy": [
-        "npm --prefix \"$RESOURCE_DIR\" run build"
-      ],
       "source": "functions",
       "ignore": [
         "venv",
@@ -36,7 +29,7 @@
         "firebase-debug.*.log",
         "*.local"
       ],
-      "runtime": "python313"
+      "runtime": "python311"
     }
   ],
   "emulators": {
