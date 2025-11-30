@@ -11,6 +11,7 @@ import {
   Timestamp,
   doc,
   deleteDoc,
+  getDocs,
 } from '@angular/fire/firestore';
 import { AuthService } from './auth.service';
 import { Observable, switchMap, of } from 'rxjs';
@@ -29,7 +30,7 @@ export class HistoryService {
   private firestore = inject(Firestore);
   private authService = inject(AuthService);
 
-  constructor() {}
+  constructor() { }
 
   async addEntry(type: HistoryEntry['type'], details: string): Promise<void> {
     try {
@@ -116,16 +117,13 @@ export class HistoryService {
     try {
       const historyCollection = collection(this.firestore, 'history');
       const q = query(historyCollection, where('userId', '==', user.uid));
-      const items = (await collectionData(q, { idField: 'id' })) as any[];
+      const snapshot = await getDocs(q);
       // Delete each doc by id
-      for (const it of items) {
+      for (const docSnap of snapshot.docs) {
         try {
-          const id = (it as any).id;
-          if (!id) continue;
-          const dref = doc(this.firestore, 'history', id);
-          await deleteDoc(dref);
+          await deleteDoc(docSnap.ref);
         } catch (err) {
-          console.error('[HistoryService] error deleting item', it, err);
+          console.error('[HistoryService] error deleting item', docSnap.id, err);
         }
       }
       console.log('[HistoryService] clearHistoryForCurrentUser completed');

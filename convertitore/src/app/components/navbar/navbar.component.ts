@@ -1,6 +1,7 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ViewChildren, QueryList, ElementRef, AfterViewInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { Router, RouterLink, NavigationEnd } from '@angular/router';
+import { filter } from 'rxjs/operators';
 import { AuthService } from '../../services/auth.service';
 import { HistoryService } from '../../services/history.service';
 import { Firestore, doc, setDoc } from '@angular/fire/firestore';
@@ -9,10 +10,10 @@ import { LoginPopupComponent } from '../login-popup/login-popup.component';
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive, LoginPopupComponent],
+  imports: [CommonModule, RouterLink, LoginPopupComponent],
   template: `
     <nav
-      class="bg-slate-900/80 backdrop-blur-md border-b border-indigo-500/30 sticky top-0 z-50 transition-all duration-300"
+      class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-gray-200 dark:border-indigo-500/30 sticky top-0 z-50 transition-all duration-300"
     >
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
@@ -31,7 +32,7 @@ import { LoginPopupComponent } from '../login-popup/login-popup.component';
             <!-- History Link (Always visible) -->
             <a
               routerLink="/dashboard"
-              class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center group"
+              class="text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center group"
             >
               <svg
                 class="h-5 w-5 mr-1 text-indigo-400 group-hover:text-indigo-300"
@@ -46,22 +47,9 @@ import { LoginPopupComponent } from '../login-popup/login-popup.component';
                   d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
                 />
               </svg>
-              <span class="hidden sm:inline">Cronologia</span>
+              <span class="inline">Cronologia</span>
             </a>
-            <button
-              (click)="clearHistory()"
-              title="Cancella cronologia"
-              class="text-red-400 hover:text-red-300 p-2 rounded-md"
-            >
-              <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M9 7V5a2 2 0 012-2h2a2 2 0 012 2v2"
-                />
-              </svg>
-            </button>
+
 
             <!-- Dark/Light Mode Toggle -->
             <button
@@ -129,17 +117,10 @@ import { LoginPopupComponent } from '../login-popup/login-popup.component';
                   tabindex="-1"
                 >
                   <div class="px-4 py-3 border-b border-gray-700 flex items-center justify-between">
-                    <div>
+                    <div class="flex items-center gap-2">
                       <p class="text-sm text-white font-medium">
-                        Ciao
-                        {{
-                          username() ||
-                            user?.displayName ||
-                            (user?.email ? user.email.split('@')[0] : '')
-                        }}!
+                        Ciao {{ username() || user?.displayName || (user?.email ? user.email!.split('@')[0] : '') }}!
                       </p>
-                      <p class="text-sm text-gray-400 truncate">{{ user?.email }}</p>
-                    </div>
                     <button
                       title="Modifica nome"
                       (click)="focusUsername()"
@@ -154,6 +135,7 @@ import { LoginPopupComponent } from '../login-popup/login-popup.component';
                         />
                       </svg>
                     </button>
+                  </div>
                   </div>
 
                   <div class="px-4 py-2">
@@ -197,30 +179,36 @@ import { LoginPopupComponent } from '../login-popup/login-popup.component';
         </div>
       </div>
 
-      <!-- Conversion selector bar under header (pills) -->
-      <div class="w-full bg-slate-900/70 border-t border-indigo-500/20">
+      <!-- Conversion selector bar under header (Sliding Pill) -->
+      <div class="w-full bg-white/90 dark:bg-slate-900/90 border-t border-gray-200 dark:border-indigo-500/20 backdrop-blur-sm transition-colors duration-200">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div class="flex gap-3 py-3 justify-center">
-            <a
-              routerLink="/file-converter"
-              class="px-4 py-2 rounded-full bg-slate-800 text-gray-200 hover:bg-indigo-600 hover:text-white transition"
-              >immagine</a
-            >
-            <a
-              routerLink="/unit-converter"
-              class="px-4 py-2 rounded-full bg-slate-800 text-gray-200 hover:bg-indigo-600 hover:text-white transition"
-              >unità</a
-            >
-            <a
-              routerLink="/currency-converter"
-              class="px-4 py-2 rounded-full bg-slate-800 text-gray-200 hover:bg-indigo-600 hover:text-white transition"
-              >valute</a
-            >
-            <a
-              routerLink="/text-manipulator"
-              class="px-4 py-2 rounded-full bg-slate-800 text-gray-200 hover:bg-indigo-600 hover:text-white transition"
-              >testo</a
-            >
+          <div class="relative flex justify-center py-3">
+            <div class="relative flex bg-gray-100/50 dark:bg-slate-800/50 rounded-full p-1 border border-gray-200 dark:border-indigo-500/10 transition-colors duration-200">
+              <!-- Sliding Pill -->
+              <div
+                #pill
+                class="absolute top-1 bottom-1 bg-indigo-600 rounded-full transition-all duration-300 ease-out shadow-[0_0_15px_rgba(79,70,229,0.4)]"
+                [style.left.px]="pillLeft()"
+                [style.width.px]="pillWidth()"
+                [class.opacity-0]="activeLinkIndex() === -1"
+              ></div>
+
+              <!-- Links -->
+              <a
+                *ngFor="let link of links; let i = index"
+                #navItem
+                [routerLink]="link.path"
+                (click)="setActive(i)"
+                class="relative z-10 px-6 py-2 rounded-full text-sm font-medium transition-colors duration-200"
+                [class.text-white]="activeLinkIndex() === i"
+                [class.text-gray-600]="activeLinkIndex() !== i"
+                [class.dark:text-gray-400]="activeLinkIndex() !== i"
+                [class.hover:text-gray-900]="activeLinkIndex() !== i"
+                [class.dark:hover:text-gray-200]="activeLinkIndex() !== i"
+              >
+                {{ link.label }}
+              </a>
+            </div>
           </div>
         </div>
       </div>
@@ -232,10 +220,25 @@ import { LoginPopupComponent } from '../login-popup/login-popup.component';
   `,
   styles: [],
 })
-export class NavbarComponent {
+export class NavbarComponent implements AfterViewInit {
   authService = inject(AuthService);
   private router = inject(Router);
   private historyService = inject(HistoryService);
+  private firestore = inject(Firestore);
+
+  @ViewChildren('navItem') navItems!: QueryList<ElementRef>;
+  @ViewChild('pill') pill!: ElementRef;
+
+  links = [
+    { label: 'immagine', path: '/file-converter' },
+    { label: 'unità', path: '/unit-converter' },
+    { label: 'valute', path: '/currency-converter' },
+    { label: 'testo', path: '/text-manipulator' }
+  ];
+
+  activeLinkIndex = signal<number>(-1);
+  pillLeft = signal<number>(0);
+  pillWidth = signal<number>(0);
 
   isDarkMode = signal<boolean>(false);
   isMobileMenuOpen = signal<boolean>(false);
@@ -257,10 +260,49 @@ export class NavbarComponent {
     }
 
     // Load username if exists
-    // In a real app, this would come from the User object or DB
     const savedUsername = localStorage.getItem('username');
     if (savedUsername) {
       this.username.set(savedUsername);
+    }
+  }
+
+  ngAfterViewInit() {
+    // Update pill on route change
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe(() => {
+      this.updatePillPosition();
+    });
+
+    // Initial check (give time for rendering)
+    setTimeout(() => this.updatePillPosition(), 100);
+
+    // Update on resize
+    window.addEventListener('resize', () => this.updatePillPosition());
+  }
+
+  setActive(index: number) {
+    this.activeLinkIndex.set(index);
+    this.updatePillPosition();
+  }
+
+  updatePillPosition() {
+    const currentUrl = this.router.url;
+    const index = this.links.findIndex(link => currentUrl.includes(link.path));
+
+    if (index !== -1) {
+      this.activeLinkIndex.set(index);
+      const items = this.navItems?.toArray();
+      if (items && items[index]) {
+        const element = items[index].nativeElement;
+        // Calculate position relative to the container
+        // We need the offsetLeft and offsetWidth
+        this.pillLeft.set(element.offsetLeft);
+        this.pillWidth.set(element.offsetWidth);
+      }
+    } else {
+      this.activeLinkIndex.set(-1);
+      this.pillWidth.set(0);
     }
   }
 
@@ -322,13 +364,7 @@ export class NavbarComponent {
     if (el) el.focus();
   }
 
-  async clearHistory() {
-    if (
-      !confirm('Sei sicuro di voler cancellare tutta la cronologia? Questa azione è irreversibile.')
-    )
-      return;
-    await this.historyService.clearHistoryForCurrentUser();
-  }
+
 
   async logout() {
     await this.authService.logout();

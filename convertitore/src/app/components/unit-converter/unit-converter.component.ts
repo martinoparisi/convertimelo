@@ -9,8 +9,8 @@ import { HistoryService } from '../../services/history.service';
   standalone: true,
   imports: [CommonModule, FormsModule],
   template: `
-    <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6 transition-colors duration-200">
-      <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Convertitore Unità</h2>
+    <div class="bg-white/80 dark:bg-slate-800/50 backdrop-blur-sm shadow-lg border border-gray-200 dark:border-indigo-500/20 rounded-lg p-6 transition-all duration-300 hover:shadow-[0_0_20px_rgba(79,70,229,0.15)]">
+      <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6 drop-shadow-[0_0_5px_rgba(139,92,246,0.5)]">Convertitore Unità</h2>
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
         <div>
@@ -19,7 +19,7 @@ import { HistoryService } from '../../services/history.service';
             type="number"
             [(ngModel)]="value"
             (ngModelChange)="convert()"
-            class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm p-2 border"
+            class="mt-1 block w-full border-gray-300 dark:border-gray-600 bg-white dark:bg-slate-900/50 text-gray-900 dark:text-white rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm p-2 border placeholder-gray-400 dark:placeholder-gray-500"
           />
         </div>
 
@@ -28,22 +28,22 @@ import { HistoryService } from '../../services/history.service';
           <select
             [(ngModel)]="fromUnit"
             (ngModelChange)="convert()"
-            class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md border"
+            class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600 bg-white dark:bg-slate-900/50 text-gray-900 dark:text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md border"
           >
-            <optgroup label="Lunghezza">
+            <optgroup label="Lunghezza" class="bg-white dark:bg-slate-800">
               <option value="meter">Metri</option>
               <option value="kilometer">Chilometri</option>
               <option value="mile">Miglia</option>
               <option value="foot">Piedi</option>
               <option value="inch">Pollici</option>
             </optgroup>
-            <optgroup label="Peso">
+            <optgroup label="Peso" class="bg-white dark:bg-slate-800">
               <option value="kilogram">Chilogrammi</option>
               <option value="gram">Grammi</option>
               <option value="pound">Libbre</option>
               <option value="ounce">Once</option>
             </optgroup>
-            <optgroup label="Temperatura">
+            <optgroup label="Temperatura" class="bg-white dark:bg-slate-800">
               <option value="degC">Celsius</option>
               <option value="degF">Fahrenheit</option>
               <option value="kelvin">Kelvin</option>
@@ -56,22 +56,22 @@ import { HistoryService } from '../../services/history.service';
           <select
             [(ngModel)]="toUnit"
             (ngModelChange)="convert()"
-            class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md border"
+            class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600 bg-white dark:bg-slate-900/50 text-gray-900 dark:text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md border"
           >
-            <optgroup label="Lunghezza">
+            <optgroup label="Lunghezza" class="bg-white dark:bg-slate-800">
               <option value="meter">Metri</option>
               <option value="kilometer">Chilometri</option>
               <option value="mile">Miglia</option>
               <option value="foot">Piedi</option>
               <option value="inch">Pollici</option>
             </optgroup>
-            <optgroup label="Peso">
+            <optgroup label="Peso" class="bg-white dark:bg-slate-800">
               <option value="kilogram">Chilogrammi</option>
               <option value="gram">Grammi</option>
               <option value="pound">Libbre</option>
               <option value="ounce">Once</option>
             </optgroup>
-            <optgroup label="Temperatura">
+            <optgroup label="Temperatura" class="bg-white dark:bg-slate-800">
               <option value="degC">Celsius</option>
               <option value="degF">Fahrenheit</option>
               <option value="kelvin">Kelvin</option>
@@ -80,22 +80,20 @@ import { HistoryService } from '../../services/history.service';
         </div>
       </div>
 
-      <!-- Button removed for instant conversion -->
-
       <div
         *ngIf="result !== null"
-        class="mt-8 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600 text-center"
+        class="mt-8 p-4 bg-gray-100 dark:bg-slate-900/50 rounded-lg border border-gray-200 dark:border-indigo-500/30 text-center"
       >
         <p class="text-sm text-gray-500 dark:text-gray-400">Risultato</p>
-        <p class="text-3xl font-bold text-gray-900 dark:text-white mt-1">
+        <p class="text-3xl font-bold text-gray-900 dark:text-white mt-1 drop-shadow-[0_0_5px_rgba(139,92,246,0.5)]">
           {{ result | number : '1.0-4' }}
-          <span class="text-lg font-normal text-gray-600 dark:text-gray-300">{{ resultUnit }}</span>
+          <span class="text-lg font-normal text-indigo-600 dark:text-indigo-300">{{ resultUnit }}</span>
         </p>
       </div>
 
       <div
         *ngIf="error"
-        class="mt-4 p-4 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 rounded-md"
+        class="mt-4 p-4 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-md border border-red-200 dark:border-red-500/30"
       >
         {{ error }}
       </div>

@@ -4,10 +4,10 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { AuthService } from '../../services/auth.service';
 
 @Component({
-    selector: 'app-login-popup',
-    standalone: true,
-    imports: [CommonModule, ReactiveFormsModule],
-    template: `
+  selector: 'app-login-popup',
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule],
+  template: `
     <div class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
       <!-- Background backdrop -->
       <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
@@ -28,13 +28,13 @@ import { AuthService } from '../../services/auth.service';
 
           <div class="sm:flex sm:items-start justify-center">
             <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
-              <div class="flex justify-center mb-6">
-                 <h3 class="text-2xl leading-6 font-medium text-white" id="modal-title">
-                  accedi a <br>
-                  <span class="font-bold text-3xl tracking-wider">CONVER<span class="text-indigo-500">↑↓</span>MELO</span>
+              <div class="flex flex-col items-center justify-center mb-8">
+                 <h3 class="text-xl leading-6 font-medium text-white mb-3" id="modal-title">
+                  accedi a
                  </h3>
+                 <img src="assets/logoExtended.png" alt="Convertimelo" class="h-14 w-auto drop-shadow-[0_0_12px_rgba(139,92,246,0.65)] mb-3">
+                 <p class="text-sm text-gray-400 text-center">per un esperienza più personalizzata</p>
               </div>
-              <p class="text-sm text-gray-400 text-center mb-8">per un esperienza più personalizzata</p>
 
               <!-- Google Login -->
               <button type="button" (click)="loginWithGoogle()" class="w-full flex justify-center items-center px-4 py-3 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 mb-6">
@@ -95,43 +95,43 @@ import { AuthService } from '../../services/auth.service';
       </div>
     </div>
   `,
-    styles: []
+  styles: []
 })
 export class LoginPopupComponent {
-    @Output() closePopup = new EventEmitter<void>();
+  @Output() closePopup = new EventEmitter<void>();
 
-    private fb = inject(FormBuilder);
-    private authService = inject(AuthService);
+  private fb = inject(FormBuilder);
+  private authService = inject(AuthService);
 
-    loginForm: FormGroup = this.fb.group({
-        email: ['', [Validators.required, Validators.email]],
-        password: ['', [Validators.required]]
-    });
+  loginForm: FormGroup = this.fb.group({
+    email: ['', [Validators.required, Validators.email]],
+    password: ['', [Validators.required]]
+  });
 
-    close() {
-        this.closePopup.emit();
+  close() {
+    this.closePopup.emit();
+  }
+
+  async onSubmit() {
+    if (this.loginForm.valid) {
+      try {
+        const { email, password } = this.loginForm.value;
+        await this.authService.login(email, password);
+        this.close();
+      } catch (error) {
+        console.error('Login failed', error);
+        alert('Login failed: ' + (error as any).message);
+      }
     }
+  }
 
-    async onSubmit() {
-        if (this.loginForm.valid) {
-            try {
-                const { email, password } = this.loginForm.value;
-                await this.authService.login(email, password);
-                this.close();
-            } catch (error) {
-                console.error('Login failed', error);
-                alert('Login failed: ' + (error as any).message);
-            }
-        }
+  async loginWithGoogle() {
+    try {
+      await this.authService.loginWithGoogle();
+      this.close();
+    } catch (error) {
+      console.error('Google login failed', error);
+      alert('Google login failed: ' + (error as any).message);
     }
-
-    async loginWithGoogle() {
-        try {
-            await this.authService.loginWithGoogle();
-            this.close();
-        } catch (error) {
-            console.error('Google login failed', error);
-            alert('Google login failed: ' + (error as any).message);
-        }
-    }
+  }
 }
