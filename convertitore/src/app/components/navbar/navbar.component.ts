@@ -1,4 +1,13 @@
-import { Component, inject, signal, ViewChildren, QueryList, ElementRef, AfterViewInit, ViewChild } from '@angular/core';
+import {
+  Component,
+  inject,
+  signal,
+  ViewChildren,
+  QueryList,
+  ElementRef,
+  AfterViewInit,
+  ViewChild,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
@@ -12,9 +21,7 @@ import { LoginPopupComponent } from '../login-popup/login-popup.component';
   standalone: true,
   imports: [CommonModule, RouterLink, LoginPopupComponent],
   template: `
-    <nav
-      class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-gray-200 dark:border-indigo-500/30 sticky top-0 z-50 transition-all duration-300"
-    >
+    <nav class="bg-slate-900 sticky top-0 z-50 transition-all duration-300">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
           <div class="flex">
@@ -25,6 +32,33 @@ import { LoginPopupComponent } from '../login-popup/login-popup.component';
                 src="assets/logoExtended.png"
                 alt="Convertimelo"
               />
+            </div>
+          </div>
+
+          <!-- Desktop Pill Selector (Hidden on Mobile) -->
+          <div class="hidden md:flex flex-1 justify-center items-center">
+            <div
+              class="relative flex bg-slate-800/50 rounded-full p-1 border border-indigo-500/10 transition-colors duration-200"
+            >
+              <!-- Sliding Pill Desktop -->
+              <div
+                #pillDesktop
+                class="absolute top-1 bottom-1 bg-indigo-600 rounded-full transition-all duration-300 ease-out shadow-[0_0_15px_rgba(79,70,229,0.4)]"
+                [style.left.px]="pillLeftDesktop()"
+                [style.width.px]="pillWidthDesktop()"
+                [class.opacity-0]="activeLinkIndex() === -1"
+              ></div>
+
+              <!-- Links Desktop -->
+              <a
+                *ngFor="let link of links; let i = index"
+                #navItemDesktop
+                [routerLink]="link.path"
+                class="relative z-10 px-6 py-2 rounded-full text-sm font-medium transition-colors duration-200 text-gray-300 hover:text-white"
+                [class.text-white]="activeLinkIndex() === i"
+              >
+                {{ link.label }}
+              </a>
             </div>
           </div>
 
@@ -49,11 +83,10 @@ import { LoginPopupComponent } from '../login-popup/login-popup.component';
               </svg>
             </a>
 
-
             <!-- Dark/Light Mode Toggle (icon only) -->
             <button
               (click)="toggleDarkMode()"
-              class="ml-0 text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center group"
+              class="!ml-0 text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center group"
             >
               <svg
                 *ngIf="!isDarkMode()"
@@ -115,51 +148,47 @@ import { LoginPopupComponent } from '../login-popup/login-popup.component';
                   aria-labelledby="user-menu-button"
                   tabindex="-1"
                 >
-                  <div class="px-4 py-3 border-b border-gray-700 flex items-center justify-between">
+                  <div class="px-4 py-4 border-b border-gray-700">
                     <div class="flex items-center gap-2">
-                      <p class="text-sm text-white font-medium">
-                        Ciao {{ username() || user?.displayName || (user?.email ? user.email!.split('@')[0] : '') }}!
-                      </p>
-                    <button
-                      title="Modifica nome"
-                      (click)="focusUsername()"
-                      class="text-indigo-400 hover:text-indigo-300 p-2 rounded"
-                    >
-                      <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M15.232 5.232l3.536 3.536M9 11l6-6L7 3l-4 4 6 4z"
-                        />
-                      </svg>
-                    </button>
-                  </div>
-                  </div>
-
-                  <div class="px-4 py-2">
-                    <label class="block text-xs text-gray-500 uppercase tracking-wider mb-1"
-                      >Username</label
-                    >
-                    <input
-                      id="username-input"
-                      type="text"
-                      [value]="username()"
-                      (change)="updateUsername($event)"
-                      class="w-full bg-slate-900 border border-gray-700 rounded px-2 py-1 text-sm text-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
-                      placeholder="Il tuo nome"
-                    />
+                      <span class="text-gray-400 whitespace-nowrap text-lg">Ciao,</span>
+                      <input
+                        id="username-input"
+                        type="text"
+                        [value]="
+                          username() ||
+                          user?.displayName ||
+                          (user?.email ? user.email!.split('@')[0] : '')
+                        "
+                        (change)="updateUsername($event)"
+                        class="bg-transparent border-b border-gray-600 text-white text-lg font-medium focus:outline-none focus:border-indigo-500 w-full pb-1 placeholder-gray-500"
+                        placeholder="Il tuo nome"
+                      />
+                      <button
+                        title="Modifica nome"
+                        (click)="focusUsername()"
+                        class="text-gray-400 hover:text-white transition-colors p-1 flex-shrink-0"
+                      >
+                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+                          />
+                        </svg>
+                      </button>
+                    </div>
                   </div>
 
-                  <a
-                    href="#"
-                    class="block px-4 py-2 text-sm text-gray-300 hover:bg-slate-700"
+                  <button
+                    (click)="logout()"
+                    class="w-full text-left block px-4 py-3 text-sm text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-colors font-medium"
                     role="menuitem"
                     tabindex="-1"
                     id="user-menu-item-2"
-                    (click)="logout()"
-                    >Esci</a
                   >
+                    Esci
+                  </button>
                 </div>
               </div>
             </ng-container>
@@ -178,31 +207,29 @@ import { LoginPopupComponent } from '../login-popup/login-popup.component';
         </div>
       </div>
 
-      <!-- Conversion selector bar under header (Sliding Pill) -->
-      <div class="w-full bg-white/90 dark:bg-slate-900/90 border-t border-gray-200 dark:border-indigo-500/20 backdrop-blur-sm transition-colors duration-200">
+      <!-- Conversion selector bar under header (Sliding Pill) - Mobile Only -->
+      <div class="md:hidden w-full bg-slate-900 transition-colors duration-200">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div class="relative flex justify-center py-3">
-            <div class="relative flex bg-gray-100/50 dark:bg-slate-800/50 rounded-full p-1 border border-gray-200 dark:border-indigo-500/10 transition-colors duration-200">
-              <!-- Sliding Pill -->
+            <div
+              class="relative flex bg-slate-800/50 rounded-full p-1 border border-indigo-500/10 transition-colors duration-200"
+            >
+              <!-- Sliding Pill Mobile -->
               <div
-                #pill
+                #pillMobile
                 class="absolute top-1 bottom-1 bg-indigo-600 rounded-full transition-all duration-300 ease-out shadow-[0_0_15px_rgba(79,70,229,0.4)]"
-                [style.left.px]="pillLeft()"
-                [style.width.px]="pillWidth()"
+                [style.left.px]="pillLeftMobile()"
+                [style.width.px]="pillWidthMobile()"
                 [class.opacity-0]="activeLinkIndex() === -1"
               ></div>
 
-              <!-- Links -->
+              <!-- Links Mobile -->
               <a
                 *ngFor="let link of links; let i = index"
-                #navItem
+                #navItemMobile
                 [routerLink]="link.path"
-                class="relative z-10 px-6 py-2 rounded-full text-sm font-medium transition-colors duration-200"
+                class="relative z-10 px-6 py-2 rounded-full text-sm font-medium transition-colors duration-200 text-gray-300 hover:text-white"
                 [class.text-white]="activeLinkIndex() === i"
-                [class.text-gray-600]="activeLinkIndex() !== i"
-                [class.dark:text-gray-400]="activeLinkIndex() !== i"
-                [class.hover:text-gray-900]="activeLinkIndex() !== i"
-                [class.dark:hover:text-gray-200]="activeLinkIndex() !== i"
               >
                 {{ link.label }}
               </a>
@@ -224,19 +251,23 @@ export class NavbarComponent implements AfterViewInit {
   private historyService = inject(HistoryService);
   private firestore = inject(Firestore);
 
-  @ViewChildren('navItem') navItems!: QueryList<ElementRef>;
-  @ViewChild('pill') pill!: ElementRef;
+  @ViewChildren('navItemDesktop') navItemsDesktop!: QueryList<ElementRef>;
+  @ViewChildren('navItemMobile') navItemsMobile!: QueryList<ElementRef>;
+  @ViewChild('pillDesktop') pillDesktop!: ElementRef;
+  @ViewChild('pillMobile') pillMobile!: ElementRef;
 
   links = [
     { label: 'file', path: '/file-converter' },
     { label: 'unità', path: '/unit-converter' },
     { label: 'valute', path: '/currency-converter' },
-    { label: 'testo', path: '/text-manipulator' }
+    { label: 'testo', path: '/text-manipulator' },
   ];
 
   activeLinkIndex = signal<number>(-1);
-  pillLeft = signal<number>(0);
-  pillWidth = signal<number>(0);
+  pillLeftDesktop = signal<number>(0);
+  pillWidthDesktop = signal<number>(0);
+  pillLeftMobile = signal<number>(0);
+  pillWidthMobile = signal<number>(0);
 
   isDarkMode = signal<boolean>(false);
   isMobileMenuOpen = signal<boolean>(false);
@@ -266,9 +297,7 @@ export class NavbarComponent implements AfterViewInit {
 
   ngAfterViewInit() {
     // Update pill on route change
-    this.router.events.pipe(
-      filter(event => event instanceof NavigationEnd)
-    ).subscribe(() => {
+    this.router.events.pipe(filter((event) => event instanceof NavigationEnd)).subscribe(() => {
       this.updatePillPosition();
     });
 
@@ -283,21 +312,30 @@ export class NavbarComponent implements AfterViewInit {
 
   updatePillPosition() {
     const currentUrl = this.router.url;
-    const index = this.links.findIndex(link => currentUrl.includes(link.path));
+    const index = this.links.findIndex((link) => currentUrl.includes(link.path));
 
     if (index !== -1) {
       this.activeLinkIndex.set(index);
-      const items = this.navItems?.toArray();
-      if (items && items[index]) {
-        const element = items[index].nativeElement;
-        // Calculate position relative to the container
-        // We need the offsetLeft and offsetWidth
-        this.pillLeft.set(element.offsetLeft);
-        this.pillWidth.set(element.offsetWidth);
+
+      // Update Desktop Pill
+      const desktopItems = this.navItemsDesktop?.toArray();
+      if (desktopItems && desktopItems[index]) {
+        const element = desktopItems[index].nativeElement;
+        this.pillLeftDesktop.set(element.offsetLeft);
+        this.pillWidthDesktop.set(element.offsetWidth);
+      }
+
+      // Update Mobile Pill
+      const mobileItems = this.navItemsMobile?.toArray();
+      if (mobileItems && mobileItems[index]) {
+        const element = mobileItems[index].nativeElement;
+        this.pillLeftMobile.set(element.offsetLeft);
+        this.pillWidthMobile.set(element.offsetWidth);
       }
     } else {
       this.activeLinkIndex.set(-1);
-      this.pillWidth.set(0);
+      this.pillWidthDesktop.set(0);
+      this.pillWidthMobile.set(0);
     }
   }
 
@@ -347,7 +385,7 @@ export class NavbarComponent implements AfterViewInit {
     if (user) {
       try {
         const userDoc = doc(this.firestore, 'users', user.uid);
-        setDoc(userDoc, { username: newName });
+        setDoc(userDoc, { username: newName }, { merge: true } as any);
       } catch (err) {
         console.error('Failed to save username to Firestore', err);
       }
@@ -358,8 +396,6 @@ export class NavbarComponent implements AfterViewInit {
     const el = document.getElementById('username-input') as HTMLInputElement | null;
     if (el) el.focus();
   }
-
-
 
   async logout() {
     await this.authService.logout();

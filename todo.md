@@ -1,11 +1,13 @@
 # gemini 3 pro high
-- dentro il popup dell'account loggato cove c'è scritto "Ciao [nomeutente]!" vorrei che il nome utente sia una casella di testo modificabile, e non una separata come è adesso. mettici accanto una matita che permette di modificare il nome utente. inoltre dai più importanza al tasto esci, rendilo rosso
+- 
 
 # cloude sonnet 4.5 thinking
 - nel manipolatore di testo fai funzionare l'ai di riassunto (usando le funzioni AI di firebase)
-- ho notato anche che la cronologia non si salva nel database, ma rimane fino a che la pagina non viene aggiornata, vorrei che si salvasse nel database (se necessario fammi un file txt con le cose da copiare su firebase per creare la struttura del database)
+- ho notato anche che la cronologia non si salva nel database, ma rimane fino a che la pagina non viene aggiornata, vorrei che si salvasse nel database (se necessario fammi un file txt con le cose da copiare su firebase per creare la struttura del database), mi da questo errore nella console: 
+history.service.ts:62 [HistoryService] Error adding entry: FirebaseError: Missing or insufficient permissions.
 - sposta il pulsante per svuotare la cronologia nella pagina di cronologia (o dashboard)
 - metti una leggera ombra scura dietro il logo dell'header così che sia visibile anche con la dark mode
+- nel convertitore di testo i tasti delle varie funzioni vorrei che fossero invece che maiuscolo, minuscolo, inverti, conta parole, conta caratteri e riassumi con ai vorrei che diventassero "ABC", "abc", "cbA", "Conta parole", "Conta caratteri" e "✨ Riassunto AI", inoltre rendili più piccoli in modo che ci stiano in una riga da desktop
 
 # grandi richieste
 - vorrei che l'utente potesse scegliere il nome utente, e che per ogni utente sia salvato il nel database il nome utente, la preferenza di tema (chiaro o scuro) e le conversioni effettuate (per ogni conversione salvare la data, l'ora, il tipo di conversione, il risultato e la conversione ECCETTO PER I FILE, DEVE SOLO ESSERCI IL NOME DEL FILE E NON IL FILE)
