@@ -143,11 +143,25 @@ import { map } from 'rxjs';
                       <p class="text-sm text-gray-500 dark:text-gray-400">{{ item.output }}</p>
                     </div>
                     <div
-                      class="text-right text-sm whitespace-nowrap text-gray-500 dark:text-gray-400"
+                      class="text-right text-sm whitespace-nowrap text-gray-500 dark:text-gray-400 flex flex-col items-end gap-1"
                     >
                       <time [dateTime]="item.timestamp.toDate().toISOString()">{{
                         item.timestamp.toDate() | date : 'short'
                       }}</time>
+                      <button
+                        (click)="deleteEntry(item.id)"
+                        class="text-gray-400 hover:text-red-500 transition-colors p-1 rounded-full hover:bg-red-50 dark:hover:bg-red-900/20"
+                        title="Elimina voce"
+                      >
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M6 18L18 6M6 6l12 12"
+                          ></path>
+                        </svg>
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -168,10 +182,17 @@ import { map } from 'rxjs';
 })
 export class DashboardComponent {
   private historyService = inject(HistoryService);
-  history$ = this.historyService.getHistory().pipe(map((items) => items as HistoryEntry[]));
+  history$ = this.historyService
+    .getHistory()
+    .pipe(map((items) => items as (HistoryEntry & { id: string })[]));
 
   async clearHistory() {
     if (!confirm('Sei sicuro di voler cancellare tutta la cronologia?')) return;
     await this.historyService.clearHistoryForCurrentUser();
+  }
+
+  async deleteEntry(id: string) {
+    if (!confirm('Eliminare questa voce?')) return;
+    await this.historyService.deleteEntry(id);
   }
 }

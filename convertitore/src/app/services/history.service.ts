@@ -126,4 +126,17 @@ export class HistoryService {
       console.error('[HistoryService] clearHistoryForCurrentUser failed', err);
     }
   }
+
+  async deleteEntry(entryId: string): Promise<void> {
+    const user = this.authService.auth.currentUser;
+    if (!user) return;
+
+    try {
+      const docRef = doc(this.firestore, 'users', user.uid, 'history', entryId);
+      await deleteDoc(docRef);
+    } catch (err) {
+      console.error('[HistoryService] Error deleting entry:', err);
+      throw err;
+    }
+  }
 }
