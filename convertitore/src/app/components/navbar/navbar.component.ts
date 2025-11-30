@@ -28,14 +28,14 @@ import { LoginPopupComponent } from '../login-popup/login-popup.component';
             </div>
           </div>
 
-          <div class="flex items-center space-x-4">
-            <!-- History Link (Always visible) -->
+          <div class="flex items-center space-x-2">
+            <!-- History Link (icon only) -->
             <a
               routerLink="/dashboard"
               class="text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center group"
             >
               <svg
-                class="h-5 w-5 mr-1 text-indigo-400 group-hover:text-indigo-300"
+                class="h-5 w-5 text-indigo-400 group-hover:text-indigo-300"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -47,18 +47,17 @@ import { LoginPopupComponent } from '../login-popup/login-popup.component';
                   d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
                 />
               </svg>
-              <span class="inline">Cronologia</span>
             </a>
 
 
-            <!-- Dark/Light Mode Toggle -->
+            <!-- Dark/Light Mode Toggle (icon only) -->
             <button
               (click)="toggleDarkMode()"
-              class="p-2 rounded-full text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 bg-slate-800 hover:bg-slate-700 transition-colors"
+              class="ml-0 text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center group"
             >
               <svg
                 *ngIf="!isDarkMode()"
-                class="h-5 w-5"
+                class="h-5 w-5 text-indigo-400 group-hover:text-indigo-300"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -72,7 +71,7 @@ import { LoginPopupComponent } from '../login-popup/login-popup.component';
               </svg>
               <svg
                 *ngIf="isDarkMode()"
-                class="h-5 w-5"
+                class="h-5 w-5 text-indigo-400 group-hover:text-indigo-300"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -198,7 +197,6 @@ import { LoginPopupComponent } from '../login-popup/login-popup.component';
                 *ngFor="let link of links; let i = index"
                 #navItem
                 [routerLink]="link.path"
-                (click)="setActive(i)"
                 class="relative z-10 px-6 py-2 rounded-full text-sm font-medium transition-colors duration-200"
                 [class.text-white]="activeLinkIndex() === i"
                 [class.text-gray-600]="activeLinkIndex() !== i"
@@ -230,7 +228,7 @@ export class NavbarComponent implements AfterViewInit {
   @ViewChild('pill') pill!: ElementRef;
 
   links = [
-    { label: 'immagine', path: '/file-converter' },
+    { label: 'file', path: '/file-converter' },
     { label: 'unità', path: '/unit-converter' },
     { label: 'valute', path: '/currency-converter' },
     { label: 'testo', path: '/text-manipulator' }
@@ -274,16 +272,13 @@ export class NavbarComponent implements AfterViewInit {
       this.updatePillPosition();
     });
 
-    // Initial check (give time for rendering)
-    setTimeout(() => this.updatePillPosition(), 100);
+    // Initial check with multiple attempts to ensure rendering is complete
+    setTimeout(() => this.updatePillPosition(), 50);
+    setTimeout(() => this.updatePillPosition(), 200);
+    setTimeout(() => this.updatePillPosition(), 500);
 
     // Update on resize
     window.addEventListener('resize', () => this.updatePillPosition());
-  }
-
-  setActive(index: number) {
-    this.activeLinkIndex.set(index);
-    this.updatePillPosition();
   }
 
   updatePillPosition() {
