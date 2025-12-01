@@ -194,7 +194,7 @@ export class FileConverterComponent implements OnInit {
     this.ffmpeg = new FFmpeg();
 
     // Log progress
-    this.ffmpeg.on('log', ({ message }) => {
+    this.ffmpeg.on('log', ({ message }: { message: string }) => {
       console.log('FFmpeg Log:', message);
     });
 
@@ -467,7 +467,7 @@ export class FileConverterComponent implements OnInit {
     await ffmpeg.exec(args);
 
     const data = await ffmpeg.readFile(outputName);
-    const blob = new Blob([data], { type: this.targetFormat });
+    const blob = new Blob([data as any], { type: this.targetFormat });
     const url = URL.createObjectURL(blob);
     this.downloadUrl(url, outputExt);
   }

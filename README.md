@@ -1,46 +1,110 @@
 # Convertimelo
 
-Una applicazione web completa per convertire file, valute, unità di misura e manipolare testo.
+Convertimelo è una potente applicazione web "All-in-One" per la conversione e la manipolazione di file, unità di misura, valute e testo. Costruita con le più recenti tecnologie web, porta la potenza di strumenti desktop direttamente nel browser grazie a WebAssembly e Python-in-the-browser.
 
-## Funzionalità
+## 🚀 Funzionalità Principali
 
-### 📄 Convertitore di File
-- Converti file tra diversi formati (PNG, JPEG, WEBP, BMP, MP3, WAV)
-- Tracciamento delle conversioni su Firestore
+### 📂 Convertitore File
 
-### 💱 Convertitore di Valute
-- Conversione in tempo reale tra 20+ valute
-- Utilizzo di API esterne per tassi di cambio aggiornati
-- Funzione di scambio rapido tra valute
-- Supporto per le principali valute mondiali (USD, EUR, GBP, JPY, ecc.)
+Converti file multimediali e documenti direttamente nel tuo browser senza caricare dati su server esterni (privacy garantita!).
 
-### 📏 Convertitore di Unità
-- **Lunghezza**: metri, chilometri, miglia, piedi, pollici, centimetri
-- **Peso**: chilogrammi, grammi, libbre, once, tonnellate
-- **Temperatura**: Celsius, Fahrenheit, Kelvin
-- **Volume**: litri, millilitri, galloni, once fluide, metri cubi
-- Conversione in tempo reale mentre digiti
+- **Immagini**: Converti tra JPG, PNG, WEBP, GIF. Ridimensiona e comprimi.
+- **Audio/Video**: Converti MP4, MP3, WAV usando la potenza di **FFmpeg.wasm**.
+- **Documenti**: Converti immagini e testo in PDF.
+- **Tecnologia**: Utilizza `FFmpeg.wasm` e `jsPDF` per elaborazioni client-side veloci e sicure.
 
-### 📝 Utilità Testo
-- **Statistiche testo**: conta caratteri, parole, righe, frasi
-- **Trasformazioni case**: MAIUSCOLO, minuscolo, Titolo, Frase
-- **Operazioni**: rimuovi spazi extra, inverti testo, riassunto
-- Copia risultati negli appunti con un click
+### 📏 Convertitore Unità
 
-## Tecnologie Utilizzate
+Conversioni precise e complesse gestite da una vera libreria Python.
 
-### Frontend
-- **Angular 17** - Framework principale
-- **TypeScript** - Linguaggio di programmazione
-- **RxJS** - Gestione asincrona
-- **CSS** - Styling con gradients e animazioni
-- **Python** - Linguaggio di programmazione per il convertitore di unità
+- Supporta lunghezze, pesi, temperature, volumi e molto altro.
+- **Tecnologia**: Utilizza **Pyodide** per eseguire la libreria Python `pint` direttamente nel browser.
 
-### Backend e Database
-- **Firebase**
-  - Firestore - Database NoSQL per tracciamento conversioni
-  - Functions - Funzioni serverless per operazioni backend
+### 💱 Convertitore Valuta
 
-### API Esterne
-- **Exchange Rate API** - Tassi di cambio in tempo reale
-- **Browser Canvas API (client-side)** - La conversione dei file viene eseguita nel browser usando la Canvas API per caricare ed esportare file in formati diversi
+Tassi di cambio aggiornati in tempo reale.
+
+- Supporta le principali valute mondiali (USD, EUR, GBP, JPY, ecc.).
+- **Tecnologia**: Integrazione con API di tassi di cambio in tempo reale.
+
+### 📝 Manipolatore di Testo
+
+Strumenti avanzati per la formattazione e l'analisi del testo.
+
+- Trasformazioni (maiuscolo/minuscolo), pulizia, e analisi.
+- **Tecnologia**: Elaborazione basata su script Python eseguiti via Pyodide.
+
+### 🤖 Genkit AI
+
+Generatore di contenuti intelligente.
+
+- Crea testi, riassunti o idee creative partendo da un prompt.
+- **Tecnologia**: Integrazione con **Google Gemini** (Generative AI).
+
+### 🔐 Autenticazione e Dashboard
+
+- Sistema di Login e Registrazione sicuro.
+- Dashboard personale per accedere rapidamente a tutti gli strumenti.
+- Cronologia delle conversioni (salvata localmente o su cloud).
+- **Tecnologia**: **Firebase Authentication**.
+
+## 🛠️ Stack Tecnologico
+
+Il progetto è sviluppato come una Single Page Application (SPA) moderna:
+
+- **Frontend Framework**: [Angular](https://angular.io/) (v17+)
+- **Styling**: [Tailwind CSS](https://tailwindcss.com/) per un design responsivo e moderno.
+- **Python in Browser**: [Pyodide](https://pyodide.org/) (WebAssembly) per eseguire codice Python client-side.
+- **Media Processing**: [FFmpeg.wasm](https://ffmpegwasm.netlify.app/) per manipolazione audio/video.
+- **Backend/Auth**: [Firebase](https://firebase.google.com/) (Auth & Hosting).
+- **AI**: Google Generative AI (Gemini).
+
+## 📦 Installazione e Avvio
+
+### Prerequisiti
+
+- [Node.js](https://nodejs.org/) (versione LTS raccomandata)
+- [Angular CLI](https://angular.io/cli) (`npm install -g @angular/cli`)
+
+### Setup del Progetto
+
+1. **Clona il repository** (se non l'hai già fatto):
+
+   ```bash
+   git clone <url-repository>
+   cd convertimelo
+   ```
+
+2. **Entra nella cartella del progetto**:
+
+   ```bash
+   cd convertitore
+   ```
+
+3. **Installa le dipendenze**:
+   ```bash
+   npm install
+   ```
+
+### Avvio in Sviluppo
+
+Per avviare il server di sviluppo locale:
+
+```bash
+ng serve
+```
+
+Apri il browser all'indirizzo `http://localhost:4200/`. L'applicazione si ricaricherà automaticamente se modifichi i file sorgente.
+
+## ⚠️ Note Importanti
+
+- **Primo Caricamento**: Al primo avvio, l'applicazione scaricherà i binari WebAssembly per Pyodide e FFmpeg. Questo potrebbe richiedere alcuni secondi a seconda della velocità della connessione. I caricamenti successivi saranno molto più veloci grazie alla cache.
+- **Browser Supportati**: Si consiglia l'uso di browser moderni (Chrome, Edge, Firefox, Safari) per il pieno supporto di WebAssembly e delle API moderne.
+
+## 🤝 Contribuire
+
+Le Pull Request sono benvenute! Per modifiche importanti, apri prima una issue per discutere cosa vorresti cambiare.
+
+## 📄 Licenza
+
+[MIT](LICENSE)
