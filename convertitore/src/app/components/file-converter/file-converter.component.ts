@@ -59,12 +59,12 @@ import { ConverterService } from '../../services/converter.service';
                   type="file"
                   class="sr-only"
                   (change)="onFileSelected($event)"
-                  accept="*"
+                  accept=".png,.jpeg,.jpg,.webp,.gif,.mp3,.mp4,.wav,.pdf,.txt"
                 />
               </label>
               <p class="pl-1">o trascina e rilascia</p>
             </div>
-            <p class="text-xs text-gray-500">Supporta immagini, documenti e video</p>
+            <p class="text-xs text-gray-500">PNG, JPEG, WEBP, GIF, MP3, MP4, WAV, PDF, TXT</p>
           </div>
         </div>
 
@@ -208,6 +208,43 @@ export class FileConverterComponent {
   }
 
   handleFile(file: File) {
+    const allowedTypes = [
+      'image/png',
+      'image/jpeg',
+      'image/webp',
+      'image/gif',
+      'audio/mpeg',
+      'audio/mp3',
+      'audio/wav',
+      'audio/x-wav',
+      'video/mp4',
+      'application/pdf',
+      'text/plain',
+    ];
+
+    // Check if type is allowed (loose check for extensions if mime type is missing or generic)
+    const ext = file.name.split('.').pop()?.toLowerCase();
+    const isAllowedExt = [
+      'png',
+      'jpg',
+      'jpeg',
+      'webp',
+      'gif',
+      'mp3',
+      'wav',
+      'mp4',
+      'pdf',
+      'txt',
+    ].includes(ext || '');
+
+    if (!allowedTypes.some((t) => file.type.includes(t)) && !isAllowedExt) {
+      alert(
+        'File type not supported. Please select PNG, JPEG, WEBP, GIF, MP3, MP4, WAV, PDF, or TXT.'
+      );
+      this.selectedFile = null;
+      return;
+    }
+
     this.selectedFile = file;
 
     // Set default target format based on type
@@ -222,32 +259,40 @@ export class FileConverterComponent {
       this.targetFormat = 'application/pdf';
       this.previewUrl = null;
     } else if (this.isVideo(file)) {
+      this.targetFormat = 'audio/mp3'; // Default video to audio
+      this.previewUrl = null;
+    } else if (this.isAudio(file)) {
       this.targetFormat = 'audio/mp3';
       this.previewUrl = null;
     } else {
-      // Unknown type, default to something generic or keep previous
-      this.targetFormat = 'image/jpeg'; // Default fallback
+      this.targetFormat = 'image/jpeg';
       this.previewUrl = null;
     }
   }
 
   isImage(file: File): boolean {
-    return file && file.type.startsWith('image/');
+    return (
+      file && (file.type.startsWith('image/') || /\.(jpg|jpeg|png|webp|gif)$/i.test(file.name))
+    );
   }
 
   isDoc(file: File): boolean {
     return (
       file &&
-      (file.type.includes('pdf') || file.type.includes('document') || file.type.includes('text'))
+      (file.type.includes('pdf') || file.type.includes('text') || /\.(pdf|txt)$/i.test(file.name))
     );
   }
 
   isVideo(file: File): boolean {
-    return file && file.type.startsWith('video/');
+    return file && (file.type.startsWith('video/') || /\.(mp4)$/i.test(file.name));
+  }
+
+  isAudio(file: File): boolean {
+    return file && (file.type.startsWith('audio/') || /\.(mp3|wav)$/i.test(file.name));
   }
 
   isUnknown(file: File): boolean {
-    return !this.isImage(file) && !this.isDoc(file) && !this.isVideo(file);
+    return !this.isImage(file) && !this.isDoc(file) && !this.isVideo(file) && !this.isAudio(file);
   }
 
   formatSize(bytes: number): string {
@@ -316,7 +361,7 @@ export class FileConverterComponent {
     if (mime.includes('plain')) return 'TXT';
     if (mime.includes('mp3') || mime.includes('mpeg')) return 'MP3';
     if (mime.includes('wav')) return 'WAV';
-    if (mime.includes('ogg')) return 'OGG';
+    if (mime.includes('mp4')) return 'MP4';
     if (mime.includes('gif')) return 'GIF';
     return 'JPEG'; // Default
   }
@@ -333,7 +378,7 @@ export class FileConverterComponent {
     else if (this.targetFormat.includes('plain')) ext = 'txt';
     else if (this.targetFormat.includes('mp3') || this.targetFormat.includes('mpeg')) ext = 'mp3';
     else if (this.targetFormat.includes('wav')) ext = 'wav';
-    else if (this.targetFormat.includes('ogg')) ext = 'ogg';
+    else if (this.targetFormat.includes('mp4')) ext = 'mp4';
     else if (this.targetFormat.includes('gif')) ext = 'gif';
 
     const originalName = this.selectedFile?.name.split('.')[0] || 'converted';

@@ -101,8 +101,10 @@ export class ConverterService {
   }
 
   async convertFile(payload: any): Promise<any> {
-    // TODO: Make this URL configurable via environment
-    const backendUrl = 'http://localhost:5000/file_converter';
+    // Use the same hostname as the frontend to allow access from other devices (e.g. mobile)
+    // This assumes the Python server is running on the same machine as the Angular app
+    const hostname = window.location.hostname;
+    const backendUrl = `http://${hostname}:5000/file_converter`;
     return firstValueFrom(this.http.post(backendUrl, payload));
   }
 

@@ -10,6 +10,7 @@ import subprocess
 import json
 from PIL import Image
 import imageio_ffmpeg
+from fpdf import FPDF
 
 app = Flask(__name__)
 # Abilita CORS per permettere chiamate da qualsiasi IP (necessario per l'accesso da mobile)
@@ -118,9 +119,9 @@ def file_converter():
             mime_type = f"image/{target_format.lower()}"
             return jsonify({'file': f"data:{mime_type};base64,{converted_base64}"})
 
-        # Audio formats
-        elif target_format_upper in ['MP3', 'WAV', 'OGG', 'FLAC', 'AAC']:
-            # Use ffmpeg directly via subprocess to avoid pydub/audioop issues on Python 3.13
+        # Audio/Video formats
+        elif target_format_upper in ['MP3', 'WAV', 'OGG', 'FLAC', 'AAC', 'MP4']:
+            # Use ffmpeg directly via subprocess
             with tempfile.NamedTemporaryFile(delete=False) as temp_in:
                 temp_in.write(file_bytes)
                 temp_in_path = temp_in.name
@@ -145,11 +146,12 @@ def file_converter():
                 if target_format_upper == 'MP3':
                     bitrate = f"{quality}k" if quality > 100 else "192k"
                     cmd.extend(['-b:a', bitrate])
+                elif target_format_upper == 'MP4':
+                    cmd.extend(['-preset', 'fast'])
                 
                 cmd.append(temp_out_path)
                 
                 # Run ffmpeg
-                # Check if ffmpeg is installed first or catch exception
                 # Use creationflags to hide console window on Windows
                 startupinfo = None
                 if os.name == 'nt':
@@ -168,7 +170,10 @@ def file_converter():
                     converted_bytes = f.read()
                     
                 converted_base64 = base64.b64encode(converted_bytes).decode('utf-8')
+                
                 mime_type = f"audio/{target_format.lower()}"
+                if target_format_upper == 'MP4':
+                    mime_type = "video/mp4"
                 
                 return jsonify({'file': f"data:{mime_type};base64,{converted_base64}"})
             except FileNotFoundError:
@@ -186,6 +191,44 @@ def file_converter():
                         os.remove(temp_out_path)
                     except:
                         pass
+
+        # PDF format
+        elif target_format_upper == 'PDF':
+            # Try to detect if it's an image
+            try:
+                image = Image.open(io.BytesIO(file_bytes))
+                output = io.BytesIO()
+                if image.mode != 'RGB':
+                    image = image.convert('RGB')
+                image.save(output, format='PDF')
+                output.seek(0)
+                converted_base64 = base64.b64encode(output.getvalue()).decode('utf-8')
+                return jsonify({'file': f"data:application/pdf;base64,{converted_base64}"})
+            except Exception:
+                # Not an image, try text
+                try:
+                    text_content = file_bytes.decode('utf-8')
+                    pdf = FPDF()
+                    pdf.add_page()
+                    pdf.set_font("Arial", size=12)
+                    # FPDF doesn't handle utf-8 well by default in standard fonts, but let's try basic
+                    # For better utf-8 support we need a unicode font, but let's stick to basic for now
+                    # Replace unsupported characters or handle encoding
+                    pdf.multi_cell(0, 10, text_content.encode('latin-1', 'replace').decode('latin-1'))
+                    
+                    output_string = pdf.output(dest='S')
+                    # FPDF output(dest='S') returns a string (latin-1 encoded bytes actually in py3)
+                    # We need bytes
+                    if isinstance(output_string, str):
+                        pdf_bytes = output_string.encode('latin-1')
+                    else:
+                        pdf_bytes = output_string # bytearray
+                        
+                    converted_base64 = base64.b64encode(pdf_bytes).decode('utf-8')
+                    return jsonify({'file': f"data:application/pdf;base64,{converted_base64}"})
+                except Exception:
+                    # If both fail, it's likely a complex doc like PPTX/DOCX which we don't support yet
+                    return jsonify({'error': 'PDF conversion is currently only supported for Images and Text files. PPTX/DOCX conversion requires a dedicated backend.'}), 400
 
         else:
             return jsonify({'error': f'Unsupported format: {target_format}'}), 400

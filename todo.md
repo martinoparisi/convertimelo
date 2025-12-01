@@ -9,3 +9,9 @@
 
 # ERRORI
 - questi warning per caso si possono togliere?
+
+# IN PIù
+- 
+
+# TOCCHI FINALI
+- ora fai il readme fatto in modo chiaro e fatto bene di tutta l'app
