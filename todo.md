@@ -9,6 +9,7 @@
 
 # ERRORI
 - questi warning per caso si possono togliere?
+- non mi lascia convertire file senza il server python avviato
 
 # IN PIù
 - 
