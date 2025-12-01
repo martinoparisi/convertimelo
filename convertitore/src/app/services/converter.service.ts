@@ -20,7 +20,7 @@ export class ConverterService {
   private pythonService = inject(PythonService);
 
   // Hardcoded for now as environment file location is ambiguous in this mixed workspace
-  private firebaseApiKey = 'AIzaSyBDU7ZOg6J7BHRz7Aa6lie0JdE0j-MAFbs';
+  private firebaseApiKey = 'AIzaSyAuYXtuPiNZAeYIvpk07FxNDZPW0JSj2GM';
 
   constructor() {}
 
@@ -34,9 +34,47 @@ export class ConverterService {
     return this.pythonService.manipulateText(text, operation);
   }
 
+  private selectedModel: string | null = null;
+
+  private async getModel(): Promise<string> {
+    if (this.selectedModel) return this.selectedModel;
+
+    try {
+      const listUrl = `https://generativelanguage.googleapis.com/v1beta/models?key=${this.firebaseApiKey}`;
+      const response: any = await firstValueFrom(this.http.get(listUrl));
+
+      const models = response.models || [];
+      // Filter for models that support content generation
+      const generateModels = models.filter((m: any) =>
+        m.supportedGenerationMethods?.includes('generateContent')
+      );
+
+      // Try to find the best model available (preferring Pro over Flash, and newer versions)
+      // Sort by name to hopefully get latest versions first if naming convention holds
+      generateModels.sort((a: any, b: any) => b.name.localeCompare(a.name));
+
+      // Prioritize specific known high-quality models if present
+      const bestModel =
+        generateModels.find((m: any) => m.name.includes('gemini-1.5-pro')) ||
+        generateModels.find((m: any) => m.name.includes('gemini-pro')) ||
+        generateModels[0];
+
+      if (bestModel) {
+        // name is returned as "models/model-name", we need just "model-name"
+        this.selectedModel = bestModel.name.replace('models/', '');
+        console.log('Auto-selected AI Model:', this.selectedModel);
+        return this.selectedModel!;
+      }
+    } catch (e) {
+      console.warn('Failed to auto-detect model, using fallback');
+    }
+
+    return 'gemini-1.5-flash'; // Fallback
+  }
+
   async generateContent(prompt: string): Promise<any> {
-    // Direct call to Gemini API
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${this.firebaseApiKey}`;
+    const model = await this.getModel();
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${this.firebaseApiKey}`;
 
     const body = {
       contents: [

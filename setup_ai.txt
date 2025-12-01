@@ -1,0 +1,27 @@
+ISTRUZIONI PER ABILITARE L'INTELLIGENZA ARTIFICIALE (GEMINI)
+
+Per far funzionare il riassunto AI e Genkit, devi assicurarti che la chiave API sia valida per Google Gemini.
+
+Hai due opzioni:
+
+OPZIONE 1: USARE LA CHIAVE FIREBASE ESISTENTE (Più semplice)
+1. Vai sulla Google Cloud Console: https://console.cloud.google.com/
+2. Seleziona il tuo progetto Firebase (convertimelo).
+3. Cerca "Generative Language API" nella barra di ricerca in alto.
+4. Clicca su "ABILITA" (Enable).
+5. Fatto! La chiave che è già nel codice dovrebbe iniziare a funzionare.
+
+OPZIONE 2: CREARE UNA NUOVA CHIAVE GEMINI (Se la prima non va)
+1. Vai su Google AI Studio: https://aistudio.google.com/app/apikey
+2. Clicca su "Create API Key".
+3. Seleziona il progetto Firebase esistente o creane uno nuovo.
+4. Copia la chiave generata (inizia con "AIza...").
+5. Apri il file nel tuo editor:
+   convertitore/src/app/services/converter.service.ts
+6. Cerca la riga:
+   private firebaseApiKey = "AIzaSyBDU7ZOg6J7BHRz7Aa6lie0JdE0j-MAFbs";
+7. Sostituisci quella stringa con la tua nuova chiave.
+
+NOTA SUI COSTI:
+L'uso di questa API (Gemini Pro) è gratuito entro certi limiti (60 richieste al minuto), quindi non dovresti pagare nulla per uso personale.
+Non serve il piano Blaze di Firebase per questo metodo specifico, perché stiamo chiamando l'API direttamente dal browser.
