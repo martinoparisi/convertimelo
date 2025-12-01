@@ -1,18 +1,18 @@
 import { Injectable, inject } from '@angular/core';
+import { Firestore } from '@angular/fire/firestore';
 import {
-  Firestore,
   collection,
   addDoc,
   query,
   where,
   orderBy,
   limit,
-  collectionData,
   Timestamp,
   doc,
   deleteDoc,
   getDocs,
-} from '@angular/fire/firestore';
+  onSnapshot,
+} from 'firebase/firestore';
 import { AuthService } from './auth.service';
 import { Observable, switchMap, of } from 'rxjs';
 
@@ -77,7 +77,20 @@ export class HistoryService {
         const historyCollection = collection(this.firestore, 'users', user.uid, 'history');
         const q = query(historyCollection, orderBy('timestamp', 'desc'), limit(20));
 
-        return collectionData(q, { idField: 'id' });
+        return new Observable<any[]>((observer) => {
+          const unsubscribe = onSnapshot(
+            q,
+            (snapshot) => {
+              const data = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+              observer.next(data);
+            },
+            (error) => {
+              console.error('[HistoryService] Error getting history:', error);
+              observer.error(error);
+            }
+          );
+          return () => unsubscribe();
+        });
       })
     );
   }

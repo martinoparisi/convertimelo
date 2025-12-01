@@ -63,7 +63,7 @@ import { AuthService } from '../../services/auth.service';
                   accedi a
                 </h3>
                 <img
-                  src="assets/logoExtended.png"
+                  src="logoExtended.png"
                   alt="Convertimelo"
                   class="h-14 w-auto drop-shadow-[0_0_12px_rgba(139,92,246,0.65)] mb-3"
                 />

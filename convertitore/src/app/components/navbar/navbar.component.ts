@@ -15,7 +15,8 @@ import { Router, RouterLink, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { AuthService } from '../../services/auth.service';
 import { HistoryService } from '../../services/history.service';
-import { Firestore, doc, setDoc, onSnapshot } from '@angular/fire/firestore';
+import { Firestore } from '@angular/fire/firestore';
+import { doc, setDoc, onSnapshot } from 'firebase/firestore';
 import { LoginPopupComponent } from '../login-popup/login-popup.component';
 
 @Component({
@@ -31,7 +32,7 @@ import { LoginPopupComponent } from '../login-popup/login-popup.component';
               <!-- Bigger logo, remove white border/outline -->
               <img
                 class="h-16 w-auto drop-shadow-[0_0_12px_rgba(139,92,246,0.65)]"
-                src="assets/logoExtended.png"
+                src="logoExtended.png"
                 alt="Convertimelo"
               />
             </div>

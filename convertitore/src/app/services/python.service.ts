@@ -1,4 +1,6 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
 
 declare global {
   interface Window {
@@ -10,6 +12,7 @@ declare global {
   providedIn: 'root',
 })
 export class PythonService {
+  private http = inject(HttpClient);
   private pyodide: any;
   private isReady = false;
   private initPromise: Promise<void> | null = null;
@@ -31,38 +34,13 @@ export class PythonService {
       console.log('Installing pint...');
       await micropip.install('pint');
 
-      console.log('Defining Python functions...');
-      await this.pyodide.runPythonAsync(`
-        import pint
-        import json
-        ureg = pint.UnitRegistry()
-        
-        def convert_unit(value, from_unit, to_unit):
-            try:
-                quantity = float(value) * ureg(from_unit)
-                converted = quantity.to(to_unit)
-                return json.dumps({"result": converted.magnitude, "unit": str(converted.units)})
-            except Exception as e:
-                return json.dumps({"error": str(e)})
+      console.log('Loading Python scripts...');
+      const pythonCode = await firstValueFrom(
+        this.http.get('assets/python/scripts.py', { responseType: 'text' })
+      );
 
-        def manipulate_text(text, operation):
-            try:
-                if operation == 'uppercase':
-                    res = text.upper()
-                elif operation == 'lowercase':
-                    res = text.lower()
-                elif operation == 'reverse':
-                    res = text[::-1]
-                elif operation == 'word_count':
-                    res = len(text.split())
-                elif operation == 'char_count':
-                    res = len(text)
-                else:
-                    res = text
-                return json.dumps({"result": res})
-            except Exception as e:
-                return json.dumps({"error": str(e)})
-      `);
+      console.log('Defining Python functions...');
+      await this.pyodide.runPythonAsync(pythonCode);
 
       this.isReady = true;
       console.log('Pyodide ready!');
