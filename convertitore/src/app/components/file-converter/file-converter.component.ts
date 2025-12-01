@@ -1,9 +1,12 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HistoryService } from '../../services/history.service';
 import { HttpClient } from '@angular/common/http';
 import { ConverterService } from '../../services/converter.service';
+import { FFmpeg } from '@ffmpeg/ffmpeg';
+import { fetchFile, toBlobURL } from '@ffmpeg/util';
+import { jsPDF } from 'jspdf';
 
 @Component({
   selector: 'app-file-converter',
@@ -166,7 +169,7 @@ import { ConverterService } from '../../services/converter.service';
   `,
   styles: [],
 })
-export class FileConverterComponent {
+export class FileConverterComponent implements OnInit {
   private historyService = inject(HistoryService);
   private http = inject(HttpClient);
   private converterService = inject(ConverterService);
@@ -177,6 +180,37 @@ export class FileConverterComponent {
   quality: number = 0.8;
   isDragging = false;
   isConverting = false;
+  ffmpeg: FFmpeg | null = null;
+  ffmpegLoaded = false;
+
+  async ngOnInit() {
+    // Load FFmpeg on init
+    this.loadFFmpeg();
+  }
+
+  async loadFFmpeg() {
+    if (this.ffmpegLoaded) return;
+
+    this.ffmpeg = new FFmpeg();
+
+    // Log progress
+    this.ffmpeg.on('log', ({ message }) => {
+      console.log('FFmpeg Log:', message);
+    });
+
+    try {
+      const baseURL = 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/esm';
+      await this.ffmpeg.load({
+        coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
+        wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
+      });
+      this.ffmpegLoaded = true;
+      console.log('FFmpeg loaded successfully');
+    } catch (e) {
+      console.error('Failed to load FFmpeg:', e);
+      // Fallback or notify user if needed
+    }
+  }
 
   onDragOver(event: DragEvent) {
     event.preventDefault();
@@ -303,87 +337,172 @@ export class FileConverterComponent {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   }
 
-  convert() {
+  async convert() {
     if (!this.selectedFile) return;
 
     this.isConverting = true;
 
-    // If previewUrl is available (images), use it. Otherwise read file.
-    if (this.previewUrl) {
-      this.sendConversionRequest(this.previewUrl);
-    } else {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const dataUrl = e.target?.result as string;
-        this.sendConversionRequest(dataUrl);
-      };
-      reader.readAsDataURL(this.selectedFile);
+    try {
+      // Client-side conversion logic
+      if (this.targetFormat === 'application/pdf') {
+        await this.convertToPdf(this.selectedFile);
+      } else if (this.isImage(this.selectedFile) && this.targetFormat.startsWith('image/')) {
+        // Use Canvas for simple image-to-image conversion (except GIF maybe)
+        if (this.targetFormat.includes('gif') || this.selectedFile.type.includes('gif')) {
+          // Use FFmpeg for GIF
+          await this.convertWithFFmpeg(this.selectedFile);
+        } else {
+          await this.convertImageWithCanvas(this.selectedFile);
+        }
+      } else {
+        // Use FFmpeg for Audio/Video
+        await this.convertWithFFmpeg(this.selectedFile);
+      }
+
+      this.historyService.addEntry(
+        'file',
+        this.selectedFile?.name || 'Unknown file',
+        `Converted to ${this.targetFormat}`
+      );
+    } catch (error: any) {
+      console.error('Conversion failed', error);
+      alert('Conversion failed: ' + (error.message || error));
+    } finally {
+      this.isConverting = false;
     }
   }
 
-  sendConversionRequest(fileData: string) {
-    const payload = {
-      file: fileData,
-      format: this.targetFormat,
-      target_format_string: this.mapMimeToBackendFormat(this.targetFormat),
-      quality: this.quality * 100,
-    };
+  async convertToPdf(file: File) {
+    if (this.isImage(file)) {
+      const imgData = await this.readFileAsDataURL(file);
+      const pdf = new jsPDF();
+      const imgProps = pdf.getImageProperties(imgData);
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+      pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+      pdf.save(`${file.name.split('.')[0]}.pdf`);
+    } else if (file.type.includes('text') || file.name.endsWith('.txt')) {
+      const text = await file.text();
+      const pdf = new jsPDF();
+      pdf.setFontSize(12);
+      const splitText = pdf.splitTextToSize(text, 180);
+      pdf.text(splitText, 10, 10);
+      pdf.save(`${file.name.split('.')[0]}.pdf`);
+    } else {
+      throw new Error('PDF conversion only supported for Images and Text files.');
+    }
+  }
 
-    const finalPayload = {
-      file: fileData,
-      format: payload.target_format_string,
-      quality: payload.quality,
-    };
+  async convertImageWithCanvas(file: File) {
+    return new Promise<void>((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width;
+        canvas.height = img.height;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          reject(new Error('Canvas context not available'));
+          return;
+        }
 
-    this.converterService
-      .convertFile(finalPayload)
-      .then((response: any) => {
-        this.downloadBase64(response.file);
-        this.historyService.addEntry(
-          'file',
-          this.selectedFile?.name || 'Unknown file',
-          `Converted to ${this.targetFormat}`
+        // Handle transparency for JPEG
+        if (this.targetFormat.includes('jpeg') || this.targetFormat.includes('jpg')) {
+          ctx.fillStyle = '#FFFFFF';
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+
+        ctx.drawImage(img, 0, 0);
+
+        let mime = this.targetFormat;
+        if (mime === 'image/jpg') mime = 'image/jpeg';
+
+        canvas.toBlob(
+          (blob) => {
+            if (blob) {
+              const url = URL.createObjectURL(blob);
+              this.downloadUrl(url, this.getExtension(mime));
+              resolve();
+            } else {
+              reject(new Error('Canvas toBlob failed'));
+            }
+          },
+          mime,
+          this.quality
         );
-        this.isConverting = false;
-      })
-      .catch((err) => {
-        console.error('Conversion failed', err);
-        alert('Conversion failed: ' + (err.error?.error || err.message || err));
-        this.isConverting = false;
-      });
+      };
+      img.onerror = (e) => reject(e);
+      img.src = URL.createObjectURL(file);
+    });
   }
 
-  mapMimeToBackendFormat(mime: string): string {
-    if (mime.includes('jpeg')) return 'JPEG';
-    if (mime.includes('png')) return 'PNG';
-    if (mime.includes('webp')) return 'WEBP';
-    if (mime.includes('pdf')) return 'PDF';
-    if (mime.includes('plain')) return 'TXT';
-    if (mime.includes('mp3') || mime.includes('mpeg')) return 'MP3';
-    if (mime.includes('wav')) return 'WAV';
-    if (mime.includes('mp4')) return 'MP4';
-    if (mime.includes('gif')) return 'GIF';
-    return 'JPEG'; // Default
+  async convertWithFFmpeg(file: File) {
+    if (!this.ffmpegLoaded || !this.ffmpeg) {
+      // Try to load again
+      await this.loadFFmpeg();
+      if (!this.ffmpegLoaded || !this.ffmpeg) {
+        throw new Error('FFmpeg not loaded. Please check your internet connection.');
+      }
+    }
+
+    const ffmpeg = this.ffmpeg;
+    const inputName = 'input' + this.getFileExtension(file.name);
+    const outputExt = this.getExtension(this.targetFormat);
+    const outputName = 'output.' + outputExt;
+
+    await ffmpeg.writeFile(inputName, await fetchFile(file));
+
+    // Build command
+    let args = ['-i', inputName];
+
+    // Quality/Settings
+    if (outputExt === 'mp3') {
+      args.push('-b:a', '192k');
+    } else if (outputExt === 'jpg' || outputExt === 'jpeg') {
+      // args.push('-q:v', '2'); // ffmpeg quality scale
+    }
+
+    args.push(outputName);
+
+    await ffmpeg.exec(args);
+
+    const data = await ffmpeg.readFile(outputName);
+    const blob = new Blob([data], { type: this.targetFormat });
+    const url = URL.createObjectURL(blob);
+    this.downloadUrl(url, outputExt);
   }
 
-  downloadBase64(dataUrl: string) {
+  readFileAsDataURL(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => resolve(e.target?.result as string);
+      reader.onerror = (e) => reject(e);
+      reader.readAsDataURL(file);
+    });
+  }
+
+  getFileExtension(filename: string): string {
+    return '.' + filename.split('.').pop();
+  }
+
+  getExtension(mime: string): string {
+    if (mime.includes('jpeg') || mime.includes('jpg')) return 'jpg';
+    if (mime.includes('png')) return 'png';
+    if (mime.includes('webp')) return 'webp';
+    if (mime.includes('gif')) return 'gif';
+    if (mime.includes('pdf')) return 'pdf';
+    if (mime.includes('plain')) return 'txt';
+    if (mime.includes('mp3')) return 'mp3';
+    if (mime.includes('wav')) return 'wav';
+    if (mime.includes('mp4')) return 'mp4';
+    return 'bin';
+  }
+
+  downloadUrl(url: string, ext: string) {
     const a = document.createElement('a');
-    a.href = dataUrl;
-
-    // Determine extension
-    let ext = 'jpg';
-    if (this.targetFormat.includes('png')) ext = 'png';
-    else if (this.targetFormat.includes('webp')) ext = 'webp';
-    else if (this.targetFormat.includes('pdf')) ext = 'pdf';
-    else if (this.targetFormat.includes('plain')) ext = 'txt';
-    else if (this.targetFormat.includes('mp3') || this.targetFormat.includes('mpeg')) ext = 'mp3';
-    else if (this.targetFormat.includes('wav')) ext = 'wav';
-    else if (this.targetFormat.includes('mp4')) ext = 'mp4';
-    else if (this.targetFormat.includes('gif')) ext = 'gif';
-
+    a.href = url;
     const originalName = this.selectedFile?.name.split('.')[0] || 'converted';
     a.download = `${originalName}.${ext}`;
-
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
