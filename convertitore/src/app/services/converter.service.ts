@@ -101,7 +101,9 @@ export class ConverterService {
   }
 
   async convertFile(payload: any): Promise<any> {
-    throw new Error('File conversion requires backend or advanced WASM setup not yet implemented.');
+    // TODO: Make this URL configurable via environment
+    const backendUrl = 'http://localhost:5000/file_converter';
+    return firstValueFrom(this.http.post(backendUrl, payload));
   }
 
   async getExchangeRates(base: string): Promise<any> {

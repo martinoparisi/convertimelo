@@ -7,6 +7,8 @@ import os
 from PIL import Image
 import io
 import base64
+from pydub import AudioSegment
+import tempfile
 
 initialize_app()
 ureg = pint.UnitRegistry()
@@ -101,42 +103,81 @@ def file_converter(req: https_fn.Request) -> https_fn.Response:
     try:
         data = req.get_json()
         file_data = data.get('file') # Base64 encoded string
-        target_format = data.get('format') # e.g., 'JPEG', 'PNG', 'WEBP'
+        target_format = data.get('format') # e.g., 'JPEG', 'PNG', 'WEBP', 'MP3', 'WAV'
         quality = data.get('quality', 80) # 0-100
 
         if not file_data or not target_format:
              return https_fn.Response(json.dumps({'error': 'Missing file or format'}), status=400)
 
         # Decode base64
-        # Remove header if present (e.g., "data:image/png;base64,")
         if ',' in file_data:
             file_data = file_data.split(',')[1]
         
-        image_bytes = base64.b64decode(file_data)
-        image = Image.open(io.BytesIO(image_bytes))
-
-        # Convert
-        output = io.BytesIO()
+        file_bytes = base64.b64decode(file_data)
         
-        # Handle transparency for JPEG
-        if target_format.upper() == 'JPEG' and image.mode in ('RGBA', 'LA'):
-            background = Image.new('RGB', image.size, (255, 255, 255))
-            background.paste(image, mask=image.split()[-1])
-            image = background
-        elif image.mode == 'P':
-             image = image.convert('RGB')
-
-        save_kwargs = {}
-        if target_format.upper() in ('JPEG', 'WEBP'):
-             save_kwargs['quality'] = int(quality)
-
-        image.save(output, format=target_format.upper(), **save_kwargs)
-        output.seek(0)
+        target_format_upper = target_format.upper()
         
-        converted_base64 = base64.b64encode(output.getvalue()).decode('utf-8')
-        mime_type = f"image/{target_format.lower()}"
-        
-        return {'file': f"data:{mime_type};base64,{converted_base64}"}
+        # Image formats
+        if target_format_upper in ['JPEG', 'JPG', 'PNG', 'WEBP', 'GIF', 'BMP', 'TIFF']:
+            image = Image.open(io.BytesIO(file_bytes))
+            output = io.BytesIO()
+            
+            # Handle transparency for JPEG
+            if target_format_upper in ['JPEG', 'JPG'] and image.mode in ('RGBA', 'LA'):
+                background = Image.new('RGB', image.size, (255, 255, 255))
+                background.paste(image, mask=image.split()[-1])
+                image = background
+            elif image.mode == 'P':
+                 image = image.convert('RGB')
+
+            save_kwargs = {}
+            if target_format_upper in ('JPEG', 'JPG', 'WEBP'):
+                 save_kwargs['quality'] = int(quality)
+
+            image.save(output, format=target_format_upper, **save_kwargs)
+            output.seek(0)
+            
+            converted_base64 = base64.b64encode(output.getvalue()).decode('utf-8')
+            mime_type = f"image/{target_format.lower()}"
+            return {'file': f"data:{mime_type};base64,{converted_base64}"}
+
+        # Audio formats
+        elif target_format_upper in ['MP3', 'WAV', 'OGG', 'FLAC', 'AAC']:
+            # Pydub requires a file path or file-like object.
+            # For ffmpeg to work, it's safer to use temporary files.
+            with tempfile.NamedTemporaryFile(delete=False) as temp_in:
+                temp_in.write(file_bytes)
+                temp_in_path = temp_in.name
+            
+            try:
+                # Detect format from content or try to load
+                audio = AudioSegment.from_file(temp_in_path)
+                
+                with tempfile.NamedTemporaryFile(delete=False, suffix=f".{target_format.lower()}") as temp_out:
+                    temp_out_path = temp_out.name
+                
+                # Export
+                export_kwargs = {}
+                if target_format_upper == 'MP3':
+                    export_kwargs['bitrate'] = f"{quality}k" if quality > 100 else "192k" # rough mapping or default
+
+                audio.export(temp_out_path, format=target_format.lower(), **export_kwargs)
+                
+                with open(temp_out_path, "rb") as f:
+                    converted_bytes = f.read()
+                    
+                converted_base64 = base64.b64encode(converted_bytes).decode('utf-8')
+                mime_type = f"audio/{target_format.lower()}"
+                
+                return {'file': f"data:{mime_type};base64,{converted_base64}"}
+            finally:
+                if os.path.exists(temp_in_path):
+                    os.remove(temp_in_path)
+                if 'temp_out_path' in locals() and os.path.exists(temp_out_path):
+                    os.remove(temp_out_path)
+
+        else:
+            return https_fn.Response(json.dumps({'error': f'Unsupported format: {target_format}'}), status=400)
 
     except Exception as e:
         return https_fn.Response(json.dumps({'error': str(e)}), status=500)

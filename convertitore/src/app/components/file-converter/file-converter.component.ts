@@ -314,7 +314,9 @@ export class FileConverterComponent {
     if (mime.includes('webp')) return 'WEBP';
     if (mime.includes('pdf')) return 'PDF';
     if (mime.includes('plain')) return 'TXT';
-    if (mime.includes('mp3')) return 'MP3';
+    if (mime.includes('mp3') || mime.includes('mpeg')) return 'MP3';
+    if (mime.includes('wav')) return 'WAV';
+    if (mime.includes('ogg')) return 'OGG';
     if (mime.includes('gif')) return 'GIF';
     return 'JPEG'; // Default
   }
@@ -325,12 +327,14 @@ export class FileConverterComponent {
 
     // Determine extension
     let ext = 'jpg';
-    if (this.targetFormat === 'image/png') ext = 'png';
-    if (this.targetFormat === 'image/webp') ext = 'webp';
-    if (this.targetFormat === 'application/pdf') ext = 'pdf';
-    if (this.targetFormat === 'text/plain') ext = 'txt';
-    if (this.targetFormat === 'audio/mp3') ext = 'mp3';
-    if (this.targetFormat === 'video/gif') ext = 'gif';
+    if (this.targetFormat.includes('png')) ext = 'png';
+    else if (this.targetFormat.includes('webp')) ext = 'webp';
+    else if (this.targetFormat.includes('pdf')) ext = 'pdf';
+    else if (this.targetFormat.includes('plain')) ext = 'txt';
+    else if (this.targetFormat.includes('mp3') || this.targetFormat.includes('mpeg')) ext = 'mp3';
+    else if (this.targetFormat.includes('wav')) ext = 'wav';
+    else if (this.targetFormat.includes('ogg')) ext = 'ogg';
+    else if (this.targetFormat.includes('gif')) ext = 'gif';
 
     const originalName = this.selectedFile?.name.split('.')[0] || 'converted';
     a.download = `${originalName}.${ext}`;

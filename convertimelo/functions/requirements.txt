@@ -4,3 +4,5 @@ pint
 google-generativeai
 flask
 flask-cors
+Pillow
+pydub
