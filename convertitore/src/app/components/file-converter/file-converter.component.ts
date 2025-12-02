@@ -101,6 +101,27 @@ import { jsPDF } from 'jspdf';
                 <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">{{ selectedFile.name }}</p>
               </div>
             </div>
+
+            <!-- AI Description Button -->
+            <button
+              *ngIf="isImage(selectedFile)"
+              (click)="generateDescription()"
+              [disabled]="isGeneratingDescription"
+              class="w-full mt-2 flex justify-center items-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-all shadow-[0_0_10px_rgba(147,51,234,0.3)] hover:shadow-[0_0_15px_rgba(147,51,234,0.5)]"
+            >
+              <span *ngIf="isGeneratingDescription" class="animate-pulse">Generazione...</span>
+              <span *ngIf="!isGeneratingDescription">✨ Genera descrizione AI</span>
+            </button>
+
+            <!-- AI Result -->
+            <div
+              *ngIf="aiDescription"
+              class="mt-2 p-3 bg-gray-50 dark:bg-slate-900/50 rounded-md border border-gray-200 dark:border-indigo-500/30 text-sm text-gray-700 dark:text-gray-300"
+            >
+              <h4 class="font-medium mb-1 text-indigo-600 dark:text-indigo-400">Descrizione AI:</h4>
+              {{ aiDescription }}
+            </div>
+
             <p class="text-sm text-gray-500 dark:text-gray-400">
               {{ selectedFile.name }} ({{ formatSize(selectedFile.size) }})
             </p>
@@ -183,9 +204,45 @@ export class FileConverterComponent implements OnInit {
   ffmpeg: FFmpeg | null = null;
   ffmpegLoaded = false;
 
+  aiDescription: string | null = null;
+  isGeneratingDescription = false;
+
   async ngOnInit() {
     // Load FFmpeg on init
     this.loadFFmpeg();
+  }
+
+  async generateDescription() {
+    if (!this.selectedFile || !this.isImage(this.selectedFile)) return;
+
+    this.isGeneratingDescription = true;
+    this.aiDescription = null;
+
+    try {
+      const base64 = await this.fileToBase64(this.selectedFile);
+      // Remove data URL prefix (e.g., "data:image/png;base64,")
+      const base64Data = base64.split(',')[1];
+
+      const prompt =
+        "Descrivi questa immagine in modo sintetico e breve in italiano. Rispondi SOLO con la descrizione, senza preamboli come 'Ecco la descrizione' o 'Certamente'.";
+      const response = await this.converterService.generateContent(prompt, base64Data);
+      this.aiDescription = response.text;
+      this.historyService.addEntry('file', 'Image Description', this.aiDescription || '');
+    } catch (error) {
+      console.error('Error generating description:', error);
+      this.aiDescription = 'Errore durante la generazione della descrizione.';
+    } finally {
+      this.isGeneratingDescription = false;
+    }
+  }
+
+  private fileToBase64(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = (error) => reject(error);
+    });
   }
 
   async loadFFmpeg() {

@@ -72,18 +72,25 @@ export class ConverterService {
     return 'gemini-1.5-flash'; // Fallback
   }
 
-  async generateContent(prompt: string): Promise<any> {
+  async generateContent(prompt: string, imageBase64?: string): Promise<any> {
     const model = await this.getModel();
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${this.firebaseApiKey}`;
+
+    const parts: any[] = [{ text: prompt }];
+
+    if (imageBase64) {
+      parts.push({
+        inline_data: {
+          mime_type: 'image/jpeg', // Assuming JPEG for simplicity, or we can pass mime type
+          data: imageBase64,
+        },
+      });
+    }
 
     const body = {
       contents: [
         {
-          parts: [
-            {
-              text: prompt,
-            },
-          ],
+          parts: parts,
         },
       ],
     };

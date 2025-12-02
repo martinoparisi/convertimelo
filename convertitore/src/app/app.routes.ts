@@ -7,22 +7,26 @@ import { FileConverterComponent } from './components/file-converter/file-convert
 import { UnitConverterComponent } from './components/unit-converter/unit-converter.component';
 import { CurrencyConverterComponent } from './components/currency-converter/currency-converter.component';
 import { TextManipulatorComponent } from './components/text-manipulator/text-manipulator.component';
+import { CodeConverterComponent } from './components/code-converter/code-converter.component';
+import { ColorConverterComponent } from './components/color-converter/color-converter.component';
 import { authGuard } from './guards/auth-guard';
 
 export const routes: Routes = [
-    { path: 'login', component: LoginComponent },
-    { path: 'register', component: RegisterComponent },
-    {
-        path: '',
-        component: MainLayoutComponent,
-        // canActivate: [authGuard], // Made optional as requested
-        children: [
-            { path: 'dashboard', component: DashboardComponent },
-            { path: 'file-converter', component: FileConverterComponent },
-            { path: 'unit-converter', component: UnitConverterComponent },
-            { path: 'currency-converter', component: CurrencyConverterComponent },
-            { path: 'text-manipulator', component: TextManipulatorComponent },
-            { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
-        ]
-    }
+  { path: 'login', component: LoginComponent },
+  { path: 'register', component: RegisterComponent },
+  {
+    path: '',
+    component: MainLayoutComponent,
+    // canActivate: [authGuard], // Made optional as requested
+    children: [
+      { path: 'dashboard', component: DashboardComponent },
+      { path: 'file-converter', component: FileConverterComponent },
+      { path: 'unit-converter', component: UnitConverterComponent },
+      { path: 'currency-converter', component: CurrencyConverterComponent },
+      { path: 'text-manipulator', component: TextManipulatorComponent },
+      { path: 'code-converter', component: CodeConverterComponent },
+      { path: 'color-converter', component: ColorConverterComponent },
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+    ],
+  },
 ];

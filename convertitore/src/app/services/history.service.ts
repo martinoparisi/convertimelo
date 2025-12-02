@@ -18,7 +18,7 @@ import { Observable, switchMap, of } from 'rxjs';
 
 export interface HistoryEntry {
   userId?: string;
-  type: 'file' | 'unit' | 'currency' | 'text' | 'genkit';
+  type: 'file' | 'unit' | 'currency' | 'text' | 'genkit' | 'code';
   input: string;
   output: string;
   timestamp: Timestamp;

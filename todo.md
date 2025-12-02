@@ -5,7 +5,7 @@
 - 
 
 # BUG
-- quando apro l’app, a volte la pill di selezione appare come un pallino vuoto senza testo. se clicco su un qualsiasi altro pulsante dell’interfaccia, come cronologia o dark mode, la pill si “sveglia” e mostra le opzioni corrette. adesso non lo fa più da un po', ma il problema si è presentato più volte
+- 
 
 # ERRORI
 - 
@@ -14,4 +14,4 @@
 - 
 
 # TOCCHI FINALI
-- 
+- separa gli script python anche per quanto riguarda il convertitore di unità e quello di file (se hanno script python)

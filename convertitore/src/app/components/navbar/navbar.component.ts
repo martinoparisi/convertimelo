@@ -9,6 +9,7 @@ import {
   ViewChild,
   OnInit,
   OnDestroy,
+  NgZone,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink, NavigationEnd } from '@angular/router';
@@ -41,6 +42,7 @@ import { LoginPopupComponent } from '../login-popup/login-popup.component';
           <!-- Desktop Pill Selector (Hidden on Mobile) -->
           <div class="hidden md:flex flex-1 justify-center items-center">
             <div
+              #navContainerDesktop
               class="relative flex bg-slate-800/50 rounded-full p-1 border border-indigo-500/10 transition-colors duration-200"
             >
               <!-- Sliding Pill Desktop -->
@@ -210,29 +212,42 @@ import { LoginPopupComponent } from '../login-popup/login-popup.component';
         </div>
       </div>
 
-      <!-- Conversion selector bar under header (Sliding Pill) - Mobile Only -->
-      <div class="md:hidden w-full bg-slate-900 transition-colors duration-200">
+      <!-- Conversion selector bar under header (Dropdown) - Mobile Only -->
+      <div class="md:hidden w-full bg-slate-900 transition-colors duration-200 pb-3">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div class="relative flex justify-center py-3">
-            <div
-              class="relative flex bg-slate-800/50 rounded-full p-1 border border-indigo-500/10 transition-colors duration-200"
+          <div class="relative">
+            <!-- Dropdown Button -->
+            <button
+              (click)="toggleConverterDropdown()"
+              class="w-full flex items-center justify-between bg-slate-800/50 rounded-lg p-3 border border-indigo-500/10 text-gray-300 hover:text-white transition-colors"
             >
-              <!-- Sliding Pill Mobile -->
-              <div
-                #pillMobile
-                class="absolute top-1 bottom-1 bg-indigo-600 rounded-full transition-all duration-300 ease-out shadow-[0_0_15px_rgba(79,70,229,0.4)]"
-                [style.left.px]="pillLeftMobile()"
-                [style.width.px]="pillWidthMobile()"
-                [class.opacity-0]="activeLinkIndex() === -1"
-              ></div>
+              <span class="font-medium capitalize">
+                {{ activeLinkIndex() !== -1 ? links[activeLinkIndex()].label : 'Seleziona Convertitore' }}
+              </span>
+              <svg
+                class="w-5 h-5 transition-transform duration-200"
+                [class.rotate-180]="isConverterDropdownOpen()"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
 
-              <!-- Links Mobile -->
+            <!-- Dropdown Menu -->
+            <div
+              *ngIf="isConverterDropdownOpen()"
+              class="absolute top-full left-0 right-0 mt-2 bg-slate-800 rounded-lg shadow-xl border border-gray-700 overflow-hidden z-50"
+            >
               <a
                 *ngFor="let link of links; let i = index"
-                #navItemMobile
                 [routerLink]="link.path"
-                class="relative z-10 px-6 py-2 rounded-full text-sm font-medium transition-colors duration-200 text-gray-300 hover:text-white"
-                [class.text-white]="activeLinkIndex() === i"
+                (click)="isConverterDropdownOpen.set(false)"
+                class="block px-4 py-3 text-sm font-medium transition-colors duration-200 hover:bg-indigo-600/20 hover:text-white capitalize"
+                [class.text-indigo-400]="activeLinkIndex() === i"
+                [class.bg-indigo-600/10]="activeLinkIndex() === i"
+                [class.text-gray-300]="activeLinkIndex() !== i"
               >
                 {{ link.label }}
               </a>
@@ -253,18 +268,25 @@ export class NavbarComponent implements AfterViewInit, OnInit, OnDestroy {
   private router = inject(Router);
   private historyService = inject(HistoryService);
   private firestore = inject(Firestore);
+  private ngZone = inject(NgZone);
   private userUnsubscribe: (() => void) | null = null;
 
   @ViewChildren('navItemDesktop') navItemsDesktop!: QueryList<ElementRef>;
   @ViewChildren('navItemMobile') navItemsMobile!: QueryList<ElementRef>;
   @ViewChild('pillDesktop') pillDesktop!: ElementRef;
   @ViewChild('pillMobile') pillMobile!: ElementRef;
+  @ViewChild('navContainerDesktop') navContainerDesktop!: ElementRef;
+  @ViewChild('navContainerMobile') navContainerMobile!: ElementRef;
+  private resizeObserver: ResizeObserver | null = null;
+  private resizeHandler = () => this.updatePillPosition();
 
   links = [
     { label: 'file', path: '/file-converter' },
     { label: 'unità', path: '/unit-converter' },
     { label: 'valute', path: '/currency-converter' },
     { label: 'testo', path: '/text-manipulator' },
+    { label: 'code', path: '/code-converter' },
+    { label: 'colore', path: '/color-converter' },
   ];
 
   activeLinkIndex = signal<number>(-1);
@@ -275,6 +297,7 @@ export class NavbarComponent implements AfterViewInit, OnInit, OnDestroy {
 
   isDarkMode = signal<boolean>(false);
   isMobileMenuOpen = signal<boolean>(false);
+  isConverterDropdownOpen = signal<boolean>(false);
   isProfileMenuOpen = signal<boolean>(false);
   showLoginPopup = false;
   username = signal<string>('');
@@ -350,6 +373,10 @@ export class NavbarComponent implements AfterViewInit, OnInit, OnDestroy {
     if (this.userUnsubscribe) {
       this.userUnsubscribe();
     }
+    if (this.resizeObserver) {
+      this.resizeObserver.disconnect();
+    }
+    window.removeEventListener('resize', this.resizeHandler);
   }
 
   ngAfterViewInit() {
@@ -364,7 +391,25 @@ export class NavbarComponent implements AfterViewInit, OnInit, OnDestroy {
     setTimeout(() => this.updatePillPosition(), 500);
 
     // Update on resize
-    window.addEventListener('resize', () => this.updatePillPosition());
+    window.addEventListener('resize', this.resizeHandler);
+
+    // Use ResizeObserver to detect layout changes
+    this.resizeObserver = new ResizeObserver(() => {
+      this.ngZone.run(() => {
+        this.updatePillPosition();
+      });
+    });
+
+    if (this.navContainerDesktop?.nativeElement) {
+      this.resizeObserver.observe(this.navContainerDesktop.nativeElement);
+    }
+    if (this.navContainerMobile?.nativeElement) {
+      this.resizeObserver.observe(this.navContainerMobile.nativeElement);
+    }
+
+    // Listen for changes in nav items
+    this.navItemsDesktop.changes.subscribe(() => this.updatePillPosition());
+    this.navItemsMobile.changes.subscribe(() => this.updatePillPosition());
   }
 
   updatePillPosition() {
@@ -419,6 +464,10 @@ export class NavbarComponent implements AfterViewInit, OnInit, OnDestroy {
 
   toggleMobileMenu() {
     this.isMobileMenuOpen.update((v) => !v);
+  }
+
+  toggleConverterDropdown() {
+    this.isConverterDropdownOpen.update((v) => !v);
   }
 
   toggleProfileMenu() {

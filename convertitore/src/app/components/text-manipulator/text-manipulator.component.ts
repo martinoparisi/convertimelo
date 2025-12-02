@@ -31,43 +31,55 @@ import { HistoryService } from '../../services/history.service';
           ></textarea>
         </div>
 
-        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2">
-          <button
-            (click)="manipulate('uppercase')"
-            class="inline-flex justify-center items-center px-3 py-1.5 border border-gray-300 dark:border-indigo-500/30 shadow-sm text-xs font-medium rounded-md text-gray-700 dark:text-gray-200 bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
-          >
-            ABC
-          </button>
-          <button
-            (click)="manipulate('lowercase')"
-            class="inline-flex justify-center items-center px-3 py-1.5 border border-gray-300 dark:border-indigo-500/30 shadow-sm text-xs font-medium rounded-md text-gray-700 dark:text-gray-200 bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
-          >
-            abc
-          </button>
-          <button
-            (click)="manipulate('reverse')"
-            class="inline-flex justify-center items-center px-3 py-1.5 border border-gray-300 dark:border-indigo-500/30 shadow-sm text-xs font-medium rounded-md text-gray-700 dark:text-gray-200 bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
-          >
-            cbA
-          </button>
-          <button
-            (click)="manipulate('word_count')"
-            class="inline-flex justify-center items-center px-3 py-1.5 border border-gray-300 dark:border-indigo-500/30 shadow-sm text-xs font-medium rounded-md text-gray-700 dark:text-gray-200 bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
-          >
-            Conta parole
-          </button>
-          <button
-            (click)="manipulate('char_count')"
-            class="inline-flex justify-center items-center px-3 py-1.5 border border-gray-300 dark:border-indigo-500/30 shadow-sm text-xs font-medium rounded-md text-gray-700 dark:text-gray-200 bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
-          >
-            Conta caratteri
-          </button>
-          <button
-            (click)="summarize()"
-            class="inline-flex justify-center items-center px-3 py-1.5 border border-transparent shadow-sm text-xs font-medium rounded-md text-white bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all shadow-[0_0_10px_rgba(139,92,246,0.3)] hover:shadow-[0_0_15px_rgba(139,92,246,0.5)]"
-          >
-            ✨ Riassunto AI
-          </button>
+        <div class="flex flex-col gap-3">
+          <div class="flex flex-wrap justify-center gap-2">
+            <button
+              (click)="manipulate('uppercase')"
+              class="inline-flex justify-center items-center px-2 py-1 border border-gray-300 dark:border-indigo-500/30 shadow-sm text-xs font-medium rounded-md text-gray-700 dark:text-gray-200 bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
+            >
+              ABC
+            </button>
+            <button
+              (click)="manipulate('lowercase')"
+              class="inline-flex justify-center items-center px-2 py-1 border border-gray-300 dark:border-indigo-500/30 shadow-sm text-xs font-medium rounded-md text-gray-700 dark:text-gray-200 bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
+            >
+              abc
+            </button>
+            <button
+              (click)="manipulate('reverse')"
+              class="inline-flex justify-center items-center px-2 py-1 border border-gray-300 dark:border-indigo-500/30 shadow-sm text-xs font-medium rounded-md text-gray-700 dark:text-gray-200 bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
+            >
+              cbA
+            </button>
+          </div>
+          <div class="flex flex-wrap justify-center gap-2">
+            <button
+              (click)="manipulate('word_count')"
+              class="inline-flex justify-center items-center px-3 py-1.5 border border-gray-300 dark:border-indigo-500/30 shadow-sm text-xs font-medium rounded-md text-gray-700 dark:text-gray-200 bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
+            >
+              Conta parole
+            </button>
+            <button
+              (click)="manipulate('char_count')"
+              class="inline-flex justify-center items-center px-3 py-1.5 border border-gray-300 dark:border-indigo-500/30 shadow-sm text-xs font-medium rounded-md text-gray-700 dark:text-gray-200 bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
+            >
+              Conta caratteri
+            </button>
+          </div>
+          <div class="flex flex-wrap justify-center gap-2">
+            <button
+              (click)="summarize()"
+              class="inline-flex justify-center items-center px-3 py-1.5 border border-transparent shadow-sm text-xs font-medium rounded-md text-white bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all shadow-[0_0_10px_rgba(139,92,246,0.3)] hover:shadow-[0_0_15px_rgba(139,92,246,0.5)]"
+            >
+              ✨ Riassunto AI
+            </button>
+            <button
+              (click)="enhanceText()"
+              class="inline-flex justify-center items-center px-3 py-1.5 border border-transparent shadow-sm text-xs font-medium rounded-md text-white bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all shadow-[0_0_10px_rgba(139,92,246,0.3)] hover:shadow-[0_0_15px_rgba(139,92,246,0.5)]"
+            >
+              🚀 AI Text Enhancer
+            </button>
+          </div>
         </div>
 
         <div *ngIf="loading" class="text-center text-gray-500 dark:text-gray-400">
@@ -174,6 +186,30 @@ export class TextManipulatorComponent {
       console.error('Summary error:', err);
       this.error =
         'Errore durante la generazione del riassunto. Verifica la chiave API o la connessione.';
+      if (err.error?.error?.message) {
+        this.error += ` (${err.error.error.message})`;
+      }
+      this.loading = false;
+    }
+  }
+
+  async enhanceText() {
+    if (!this.inputText) return;
+
+    this.loading = true;
+    this.error = null;
+    this.result = null;
+
+    try {
+      const prompt = `Migliora il seguente testo in italiano, correggendo la grammatica e rendendolo più professionale e fluido. Rispondi SOLO con il testo migliorato, senza commenti aggiuntivi.\n\nTesto:\n${this.inputText}`;
+      const resp: any = await this.converterService.generateContent(prompt);
+      this.result = resp.text ?? resp.result ?? resp.output ?? JSON.stringify(resp);
+      this.historyService.addEntry('text', 'AI Enhancement', this.result || '');
+      this.loading = false;
+    } catch (err: any) {
+      console.error('Enhancement error:', err);
+      this.error =
+        'Errore durante il miglioramento del testo. Verifica la chiave API o la connessione.';
       if (err.error?.error?.message) {
         this.error += ` (${err.error.error.message})`;
       }
