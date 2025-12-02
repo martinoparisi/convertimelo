@@ -35,12 +35,16 @@ export class PythonService {
       await micropip.install('pint');
 
       console.log('Loading Python scripts...');
-      const pythonCode = await firstValueFrom(
-        this.http.get('assets/python/scripts.py', { responseType: 'text' })
+      const unitConverterCode = await firstValueFrom(
+        this.http.get('assets/python/unit_converter.py', { responseType: 'text' })
+      );
+      const textManipulatorCode = await firstValueFrom(
+        this.http.get('assets/python/text_manipulator.py', { responseType: 'text' })
       );
 
       console.log('Defining Python functions...');
-      await this.pyodide.runPythonAsync(pythonCode);
+      await this.pyodide.runPythonAsync(unitConverterCode);
+      await this.pyodide.runPythonAsync(textManipulatorCode);
 
       this.isReady = true;
       console.log('Pyodide ready!');
