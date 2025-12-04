@@ -7,26 +7,22 @@ import { marked } from 'marked';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged, filter } from 'rxjs/operators';
 
+/**
+ * Component for code analysis and generation.
+ * Uses AI to explain code, detect language, and generate code from prompts.
+ */
 @Component({
   selector: 'app-code-converter',
   standalone: true,
   imports: [CommonModule, FormsModule],
   template: `
-    <div
-      class="bg-white/80 dark:bg-slate-800/50 backdrop-blur-sm shadow-lg border border-gray-200 dark:border-indigo-500/20 rounded-lg p-6 transition-all duration-300 hover:shadow-[0_0_20px_rgba(79,70,229,0.15)]"
-    >
-      <h2
-        class="text-2xl font-bold text-gray-900 dark:text-white mb-6 drop-shadow-[0_0_5px_rgba(139,92,246,0.5)]"
-      >
-        Code Assistant
-      </h2>
+    <div class="card">
+      <h2 class="card-title">Code Assistant</h2>
 
       <div class="space-y-6">
         <div>
           <div class="flex justify-between items-center mb-1">
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300"
-              >Input (Code or Prompt)</label
-            >
+            <label class="form-label">Input (Code or Prompt)</label>
             <div class="flex items-center gap-2">
               <span
                 *ngIf="isDetectingLanguage"
@@ -46,7 +42,7 @@ import { debounceTime, distinctUntilChanged, filter } from 'rxjs/operators';
             [(ngModel)]="inputText"
             (ngModelChange)="onInputChange($event)"
             rows="6"
-            class="mt-1 block w-full border-gray-300 dark:border-gray-600 bg-white dark:bg-slate-900/50 text-gray-900 dark:text-white rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm p-2 border placeholder-gray-400 dark:placeholder-gray-500 font-mono"
+            class="form-input font-mono"
             placeholder="Paste your code here to explain/detect, or type a prompt to generate code..."
           ></textarea>
         </div>

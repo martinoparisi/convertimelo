@@ -3,19 +3,17 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HistoryService } from '../../services/history.service';
 
+/**
+ * Component for converting colors between different formats (HEX, RGB, HSL, CMYK).
+ * Includes a visual color picker and real-time conversion.
+ */
 @Component({
   selector: 'app-color-converter',
   standalone: true,
   imports: [CommonModule, FormsModule],
   template: `
-    <div
-      class="bg-white/80 dark:bg-slate-800/50 backdrop-blur-sm shadow-lg border border-gray-200 dark:border-indigo-500/20 rounded-lg p-6 transition-all duration-300 hover:shadow-[0_0_20px_rgba(79,70,229,0.15)]"
-    >
-      <h2
-        class="text-2xl font-bold text-gray-900 dark:text-white mb-6 drop-shadow-[0_0_5px_rgba(139,92,246,0.5)]"
-      >
-        Convertitore Colore
-      </h2>
+    <div class="card">
+      <h2 class="card-title">Convertitore Colore</h2>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
         <!-- Color Preview & Picker -->

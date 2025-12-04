@@ -4,81 +4,46 @@ import { FormsModule } from '@angular/forms';
 import { ConverterService } from '../../services/converter.service';
 import { HistoryService } from '../../services/history.service';
 
+/**
+ * Component for text manipulation.
+ * Offers basic operations (uppercase, lowercase, reverse) and AI-powered features (summarization, enhancement).
+ */
 @Component({
   selector: 'app-text-manipulator',
   standalone: true,
   imports: [CommonModule, FormsModule],
   template: `
-    <div
-      class="bg-white/80 dark:bg-slate-800/50 backdrop-blur-sm shadow-lg border border-gray-200 dark:border-indigo-500/20 rounded-lg p-6 transition-all duration-300 hover:shadow-[0_0_20px_rgba(79,70,229,0.15)]"
-    >
-      <h2
-        class="text-2xl font-bold text-gray-900 dark:text-white mb-6 drop-shadow-[0_0_5px_rgba(139,92,246,0.5)]"
-      >
-        Manipolatore di Testo
-      </h2>
+    <div class="card">
+      <h2 class="card-title">Manipolatore di Testo</h2>
 
       <div class="space-y-6">
         <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300"
-            >Testo di Input</label
-          >
+          <label class="form-label">Testo di Input</label>
           <textarea
             [(ngModel)]="inputText"
             rows="4"
-            class="mt-1 block w-full border-gray-300 dark:border-gray-600 bg-white dark:bg-slate-900/50 text-gray-900 dark:text-white rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm p-2 border placeholder-gray-400 dark:placeholder-gray-500"
+            class="form-input"
             placeholder="Inserisci il testo qui..."
           ></textarea>
         </div>
 
         <div class="flex flex-col gap-3">
           <div class="flex flex-wrap justify-center gap-2">
-            <button
-              (click)="manipulate('uppercase')"
-              class="inline-flex justify-center items-center px-2 py-1 border border-gray-300 dark:border-indigo-500/30 shadow-sm text-xs font-medium rounded-md text-gray-700 dark:text-gray-200 bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
-            >
-              ABC
-            </button>
-            <button
-              (click)="manipulate('lowercase')"
-              class="inline-flex justify-center items-center px-2 py-1 border border-gray-300 dark:border-indigo-500/30 shadow-sm text-xs font-medium rounded-md text-gray-700 dark:text-gray-200 bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
-            >
-              abc
-            </button>
-            <button
-              (click)="manipulate('reverse')"
-              class="inline-flex justify-center items-center px-2 py-1 border border-gray-300 dark:border-indigo-500/30 shadow-sm text-xs font-medium rounded-md text-gray-700 dark:text-gray-200 bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
-            >
-              cbA
-            </button>
+            <button (click)="manipulate('uppercase')" class="btn-secondary">ABC</button>
+            <button (click)="manipulate('lowercase')" class="btn-secondary">abc</button>
+            <button (click)="manipulate('reverse')" class="btn-secondary">cbA</button>
           </div>
           <div class="flex flex-wrap justify-center gap-2">
-            <button
-              (click)="manipulate('word_count')"
-              class="inline-flex justify-center items-center px-3 py-1.5 border border-gray-300 dark:border-indigo-500/30 shadow-sm text-xs font-medium rounded-md text-gray-700 dark:text-gray-200 bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
-            >
+            <button (click)="manipulate('word_count')" class="btn-secondary px-3 py-1.5">
               Conta parole
             </button>
-            <button
-              (click)="manipulate('char_count')"
-              class="inline-flex justify-center items-center px-3 py-1.5 border border-gray-300 dark:border-indigo-500/30 shadow-sm text-xs font-medium rounded-md text-gray-700 dark:text-gray-200 bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
-            >
+            <button (click)="manipulate('char_count')" class="btn-secondary px-3 py-1.5">
               Conta caratteri
             </button>
           </div>
           <div class="flex flex-wrap justify-center gap-2">
-            <button
-              (click)="summarize()"
-              class="inline-flex justify-center items-center px-3 py-1.5 border border-transparent shadow-sm text-xs font-medium rounded-md text-white bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all shadow-[0_0_10px_rgba(139,92,246,0.3)] hover:shadow-[0_0_15px_rgba(139,92,246,0.5)]"
-            >
-              ✨ Riassunto AI
-            </button>
-            <button
-              (click)="enhanceText()"
-              class="inline-flex justify-center items-center px-3 py-1.5 border border-transparent shadow-sm text-xs font-medium rounded-md text-white bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all shadow-[0_0_10px_rgba(139,92,246,0.3)] hover:shadow-[0_0_15px_rgba(139,92,246,0.5)]"
-            >
-              🚀 AI Text Enhancer
-            </button>
+            <button (click)="summarize()" class="btn-primary">✨ Riassunto AI</button>
+            <button (click)="enhanceText()" class="btn-primary">🚀 AI Text Enhancer</button>
           </div>
         </div>
 

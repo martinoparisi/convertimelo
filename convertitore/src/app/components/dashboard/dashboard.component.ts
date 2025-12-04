@@ -4,15 +4,16 @@ import { AuthService } from '../../services/auth.service';
 import { HistoryService, HistoryEntry } from '../../services/history.service';
 import { map } from 'rxjs';
 
+/**
+ * Dashboard component displaying user welcome message and recent activity history.
+ */
 @Component({
   selector: 'app-dashboard',
   standalone: true,
   imports: [CommonModule],
   template: `
     <div class="space-y-6">
-      <div
-        class="bg-white/80 dark:bg-slate-800/50 backdrop-blur-sm shadow-lg border border-gray-200 dark:border-indigo-500/20 rounded-lg p-6 transition-all duration-300 hover:shadow-[0_0_20px_rgba(79,70,229,0.15)]"
-      >
+      <div class="card">
         <h2
           class="text-2xl font-bold text-gray-900 dark:text-white drop-shadow-[0_0_5px_rgba(139,92,246,0.5)]"
         >
@@ -23,9 +24,7 @@ import { map } from 'rxjs';
         </p>
       </div>
 
-      <div
-        class="bg-white/80 dark:bg-slate-800/50 backdrop-blur-sm shadow-lg border border-gray-200 dark:border-indigo-500/20 rounded-lg p-6 transition-all duration-300 hover:shadow-[0_0_20px_rgba(79,70,229,0.15)]"
-      >
+      <div class="card">
         <div class="flex justify-between items-center mb-4">
           <h3
             class="text-lg font-medium text-gray-900 dark:text-white drop-shadow-[0_0_5px_rgba(139,92,246,0.5)]"

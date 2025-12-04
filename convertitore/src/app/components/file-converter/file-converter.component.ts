@@ -8,19 +8,17 @@ import { FFmpeg } from '@ffmpeg/ffmpeg';
 import { fetchFile, toBlobURL } from '@ffmpeg/util';
 import { jsPDF } from 'jspdf';
 
+/**
+ * Component for file conversion.
+ * Supports image conversion (PNG, JPG, WEBP), PDF creation, and audio conversion using FFmpeg (WASM).
+ */
 @Component({
   selector: 'app-file-converter',
   standalone: true,
   imports: [CommonModule, FormsModule],
   template: `
-    <div
-      class="bg-white/80 dark:bg-slate-800/50 backdrop-blur-sm shadow-lg border border-gray-200 dark:border-indigo-500/20 rounded-lg p-6 transition-all duration-300 hover:shadow-[0_0_20px_rgba(79,70,229,0.15)]"
-    >
-      <h2
-        class="text-2xl font-bold text-gray-900 dark:text-white mb-6 drop-shadow-[0_0_5px_rgba(139,92,246,0.5)]"
-      >
-        Convertitore File
-      </h2>
+    <div class="card">
+      <h2 class="card-title">Convertitore File</h2>
 
       <div class="space-y-6">
         <!-- Upload Area -->

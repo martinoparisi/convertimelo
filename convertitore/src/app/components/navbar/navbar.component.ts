@@ -20,6 +20,10 @@ import { Firestore } from '@angular/fire/firestore';
 import { doc, setDoc, onSnapshot } from 'firebase/firestore';
 import { LoginPopupComponent } from '../login-popup/login-popup.component';
 
+/**
+ * Navigation bar component.
+ * Handles top navigation, user authentication status display, and responsive menu.
+ */
 @Component({
   selector: 'app-navbar',
   standalone: true,

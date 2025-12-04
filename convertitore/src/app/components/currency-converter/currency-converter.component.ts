@@ -4,37 +4,35 @@ import { FormsModule } from '@angular/forms';
 import { ConverterService } from '../../services/converter.service';
 import { HistoryService } from '../../services/history.service';
 
+/**
+ * Component for currency conversion.
+ * Fetches exchange rates and performs conversions between selected currencies.
+ */
 @Component({
   selector: 'app-currency-converter',
   standalone: true,
   imports: [CommonModule, FormsModule],
   template: `
-    <div
-      class="bg-white/80 dark:bg-slate-800/50 backdrop-blur-sm shadow-lg border border-gray-200 dark:border-indigo-500/20 rounded-lg p-6 transition-all duration-300 hover:shadow-[0_0_20px_rgba(79,70,229,0.15)]"
-    >
-      <h2
-        class="text-2xl font-bold text-gray-900 dark:text-white mb-6 drop-shadow-[0_0_5px_rgba(139,92,246,0.5)]"
-      >
-        Convertitore Valuta
-      </h2>
+    <div class="card">
+      <h2 class="card-title">Convertitore Valuta</h2>
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
         <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Importo</label>
+          <label class="form-label">Importo</label>
           <input
             type="number"
             [(ngModel)]="amount"
             (ngModelChange)="convert()"
-            class="mt-1 block w-full border-gray-300 dark:border-gray-600 bg-white dark:bg-slate-900/50 text-gray-900 dark:text-white rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm p-2 border placeholder-gray-400 dark:placeholder-gray-500"
+            class="form-input"
           />
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Da</label>
+          <label class="form-label">Da</label>
           <select
             [(ngModel)]="fromCurrency"
             (ngModelChange)="onFromCurrencyChange()"
-            class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600 bg-white dark:bg-slate-900/50 text-gray-900 dark:text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md border"
+            class="form-select"
           >
             <option
               *ngFor="let currency of currencies"
@@ -47,12 +45,8 @@ import { HistoryService } from '../../services/history.service';
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">A</label>
-          <select
-            [(ngModel)]="toCurrency"
-            (ngModelChange)="convert()"
-            class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600 bg-white dark:bg-slate-900/50 text-gray-900 dark:text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md border"
-          >
+          <label class="form-label">A</label>
+          <select [(ngModel)]="toCurrency" (ngModelChange)="convert()" class="form-select">
             <option
               *ngFor="let currency of currencies"
               [value]="currency"

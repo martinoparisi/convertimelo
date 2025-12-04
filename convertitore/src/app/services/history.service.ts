@@ -16,6 +16,9 @@ import {
 import { AuthService } from './auth.service';
 import { Observable, switchMap, of } from 'rxjs';
 
+/**
+ * Interface representing a single history entry.
+ */
 export interface HistoryEntry {
   userId?: string;
   type: 'file' | 'unit' | 'currency' | 'text' | 'genkit' | 'code';
@@ -24,6 +27,10 @@ export interface HistoryEntry {
   timestamp: Timestamp;
 }
 
+/**
+ * Service for managing user history.
+ * Supports both authenticated (Firestore) and unauthenticated (localStorage) modes.
+ */
 @Injectable({
   providedIn: 'root',
 })
@@ -33,6 +40,14 @@ export class HistoryService {
 
   constructor() {}
 
+  /**
+   * Adds a new entry to the history.
+   * If user is logged in, saves to Firestore.
+   * If user is guest, saves to localStorage.
+   * @param type The type of conversion/operation.
+   * @param input The input value or description.
+   * @param output The output value or result.
+   */
   async addEntry(type: HistoryEntry['type'], input: string, output: string): Promise<void> {
     try {
       // Prefer using observable user so we handle async init of Auth SDK

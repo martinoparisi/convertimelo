@@ -4,21 +4,25 @@ import { FormsModule } from '@angular/forms';
 import { ConverterService } from '../../services/converter.service';
 import { HistoryService } from '../../services/history.service';
 
+/**
+ * Component for AI content generation using Genkit (via Gemini API).
+ * Allows users to input prompts and receive generated text.
+ */
 @Component({
   selector: 'app-genkit',
   standalone: true,
   imports: [CommonModule, FormsModule],
   template: `
-    <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6 transition-colors duration-200">
-      <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Genkit AI Generator</h2>
+    <div class="card">
+      <h2 class="card-title">Genkit AI Generator</h2>
 
       <div class="space-y-6">
         <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Prompt</label>
+          <label class="form-label">Prompt</label>
           <textarea
             [(ngModel)]="prompt"
             rows="4"
-            class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm p-2 border"
+            class="form-input"
             placeholder="Descrivi cosa vuoi generare..."
           ></textarea>
         </div>

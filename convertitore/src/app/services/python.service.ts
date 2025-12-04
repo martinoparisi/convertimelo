@@ -8,6 +8,10 @@ declare global {
   }
 }
 
+/**
+ * Service for initializing and interacting with Pyodide (Python in the browser).
+ * Loads Python scripts and exposes methods to call Python functions from Angular.
+ */
 @Injectable({
   providedIn: 'root',
 })
@@ -19,6 +23,10 @@ export class PythonService {
 
   constructor() {}
 
+  /**
+   * Initializes Pyodide, installs dependencies (micropip, pint), and loads Python scripts.
+   * Ensures initialization happens only once.
+   */
   async init() {
     if (this.isReady) return;
     if (this.initPromise) return this.initPromise;
