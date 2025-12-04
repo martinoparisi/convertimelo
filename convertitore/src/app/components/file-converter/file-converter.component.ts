@@ -157,7 +157,9 @@ import { jsPDF } from 'jspdf';
             <div
               *ngIf="
                 (isImage(selectedFile) || isUnknown(selectedFile)) &&
-                (targetFormat === 'image/jpeg' || targetFormat === 'image/webp')
+                (targetFormat === 'image/jpeg' ||
+                  targetFormat === 'image/webp' ||
+                  targetFormat === 'application/pdf')
               "
             >
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300"
@@ -429,7 +431,7 @@ export class FileConverterComponent implements OnInit {
 
   async convertToPdf(file: File) {
     if (this.isImage(file)) {
-      const imgData = await this.readFileAsDataURL(file);
+      const imgData = await this.compressImage(file, Number(this.quality));
       const pdf = new jsPDF();
       const imgProps = pdf.getImageProperties(imgData);
       const pdfWidth = pdf.internal.pageSize.getWidth();
@@ -446,6 +448,31 @@ export class FileConverterComponent implements OnInit {
     } else {
       throw new Error('PDF conversion only supported for Images and Text files.');
     }
+  }
+
+  private compressImage(file: File, quality: number): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width;
+        canvas.height = img.height;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          reject(new Error('Canvas context not available'));
+          return;
+        }
+        // White background for transparency handling (JPEG)
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0);
+
+        const dataUrl = canvas.toDataURL('image/jpeg', quality);
+        resolve(dataUrl);
+      };
+      img.onerror = (e) => reject(e);
+      img.src = URL.createObjectURL(file);
+    });
   }
 
   async convertImageWithCanvas(file: File) {
@@ -483,7 +510,7 @@ export class FileConverterComponent implements OnInit {
             }
           },
           mime,
-          this.quality
+          Number(this.quality)
         );
       };
       img.onerror = (e) => reject(e);
