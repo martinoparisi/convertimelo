@@ -125,11 +125,7 @@ export class ManipolatoreTestoComponent {
     try {
       const response = await this.converterService.manipulateText(this.testoInput, operazione);
       this.risultato = response.result;
-      this.historyService.addEntry(
-        'text',
-        `Operazione: ${operazione}`,
-        this.risultato || ''
-      );
+      this.historyService.addEntry('text', `Operazione: ${operazione}`, this.risultato || '');
     } catch (err: any) {
       this.errore = 'Operazione fallita. Riprova.';
       console.error(err);
@@ -145,22 +141,29 @@ export class ManipolatoreTestoComponent {
     this.errore = null;
     this.risultato = null;
 
+    const prompt = `Riassumi il seguente testo in italiano. Rispondi SOLO con il riassunto, senza preamboli come "Ecco il riassunto" o "Certamente".\n\nTesto:\n${this.testoInput}`;
+
     try {
-      const prompt = `Riassumi il seguente testo in italiano. Rispondi SOLO con il riassunto, senza preamboli come "Ecco il riassunto" o "Certamente".\n\nTesto:\n${this.testoInput}`;
       const resp: any = await this.converterService.generateContent(prompt);
       this.risultato = resp.text ?? resp.result ?? resp.output ?? JSON.stringify(resp);
-      this.historyService.addEntry(
-        'text',
-        'Riassunto AI',
-        this.risultato || ''
-      );
+      this.historyService.addEntry('text', 'Riassunto AI', this.risultato || '');
       this.caricamento = false;
     } catch (err: any) {
+      if (err.isRetryable) {
+        this.gestisciAttesaERiprova(err.retryInSeconds, () => this.riassumi());
+        return;
+      }
+      
       console.error('Errore riassunto:', err);
-      this.errore =
-        'Errore durante la generazione del riassunto. Verifica la chiave API o la connessione.';
-      if (err.error?.error?.message) {
-        this.errore += ` (${err.error.error.message})`;
+      const friendlyError = this.converterService.getFriendlyErrorMessage(err);
+      if (friendlyError) {
+        this.errore = friendlyError;
+      } else {
+        this.errore =
+          'Errore durante la generazione del riassunto. Verifica la chiave API o la connessione.';
+        if (err.error?.error?.message) {
+          this.errore += ` (${err.error.error.message})`;
+        }
       }
       this.caricamento = false;
     }
@@ -173,25 +176,48 @@ export class ManipolatoreTestoComponent {
     this.errore = null;
     this.risultato = null;
 
+    const prompt = `Migliora il seguente testo in italiano, correggendo la grammatica e rendendolo più professionale e fluido. Rispondi SOLO con il testo migliorato, senza commenti aggiuntivi.\n\nTesto:\n${this.testoInput}`;
+
     try {
-      const prompt = `Migliora il seguente testo in italiano, correggendo la grammatica e rendendolo più professionale e fluido. Rispondi SOLO con il testo migliorato, senza commenti aggiuntivi.\n\nTesto:\n${this.testoInput}`;
       const resp: any = await this.converterService.generateContent(prompt);
       this.risultato = resp.text ?? resp.result ?? resp.output ?? JSON.stringify(resp);
-      this.historyService.addEntry(
-        'text',
-        'Miglioramento AI',
-        this.risultato || ''
-      );
+      this.historyService.addEntry('text', 'Miglioramento AI', this.risultato || '');
       this.caricamento = false;
     } catch (err: any) {
+      if (err.isRetryable) {
+        this.gestisciAttesaERiprova(err.retryInSeconds, () => this.miglioraTesto());
+        return;
+      }
+
       console.error('Errore miglioramento:', err);
-      this.errore =
-        'Errore durante il miglioramento del testo. Verifica la chiave API o la connessione.';
-      if (err.error?.error?.message) {
-        this.errore += ` (${err.error.error.message})`;
+      const friendlyError = this.converterService.getFriendlyErrorMessage(err);
+      if (friendlyError) {
+        this.errore = friendlyError;
+      } else {
+        this.errore =
+          'Errore durante il miglioramento del testo. Verifica la chiave API o la connessione.';
+        if (err.error?.error?.message) {
+          this.errore += ` (${err.error.error.message})`;
+        }
       }
       this.caricamento = false;
     }
+  }
+
+  private gestisciAttesaERiprova(secondi: number, callback: () => Promise<void>) {
+    let countdown = secondi;
+    this.errore = `Limite richieste raggiunto. Riprovo automaticamente tra ${countdown} secondi...`;
+    
+    const interval = setInterval(() => {
+      countdown--;
+      if (countdown <= 0) {
+        clearInterval(interval);
+        this.errore = 'Riprovo ora...';
+        callback(); // Riprova l'operazione
+      } else {
+        this.errore = `Limite richieste raggiunto. Riprovo automaticamente tra ${countdown} secondi...`;
+      }
+    }, 1000);
   }
 
   copiaRisultato() {

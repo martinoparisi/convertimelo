@@ -79,7 +79,12 @@ export class GeneratoreAIComponent {
       this.risultato = response.text;
       this.historyService.addEntry('genkit', this.prompt, this.risultato || '');
     } catch (err: any) {
-      this.errore = 'Generazione fallita. Riprova per favore.';
+      const friendlyError = this.converterService.getFriendlyErrorMessage(err);
+      if (friendlyError) {
+        this.errore = friendlyError;
+      } else {
+        this.errore = 'Generazione fallita. Riprova per favore.';
+      }
       console.error(err);
     } finally {
       this.caricamento = false;

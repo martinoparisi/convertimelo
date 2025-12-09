@@ -24,6 +24,13 @@ import { debounceTime, distinctUntilChanged, filter } from 'rxjs/operators';
           <div class="flex justify-between items-center mb-1">
             <label class="form-label">Input (Codice o Richiesta)</label>
             <div class="flex items-center gap-2">
+              <button
+                (click)="rilevaLinguaggioInTempoReale(testoInput)"
+                *ngIf="testoInput && !rilevamentoInCorso && !linguaggioRilevato"
+                class="text-xs text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 underline"
+              >
+                Rileva linguaggio
+              </button>
               <span
                 *ngIf="rilevamentoInCorso"
                 class="text-xs text-gray-500 dark:text-gray-400 animate-pulse"
@@ -136,6 +143,8 @@ export class AssistenteCodiceComponent implements OnInit, OnDestroy {
   private sottoscrizione: Subscription | null = null;
 
   ngOnInit() {
+    // Rimosso il rilevamento automatico per risparmiare quota API
+    /*
     this.sottoscrizione = this.soggettoInput
       .pipe(
         debounceTime(1000), // Aspetta 1s dopo che la digitazione si ferma
@@ -145,6 +154,7 @@ export class AssistenteCodiceComponent implements OnInit, OnDestroy {
       .subscribe((testo) => {
         this.rilevaLinguaggioInTempoReale(testo);
       });
+    */
   }
 
   ngOnDestroy() {
@@ -160,13 +170,18 @@ export class AssistenteCodiceComponent implements OnInit, OnDestroy {
 
   async rilevaLinguaggioInTempoReale(testo: string) {
     this.rilevamentoInCorso = true;
+    this.errore = null;
     try {
       const prompt = `Identifica il linguaggio di programmazione del seguente codice. Rispondi SOLO con il nome del linguaggio (es. "Python", "JavaScript", "C++"). Se non è codice, rispondi con "Testo".\n\nCodice:\n${testo}`;
       const resp: any = await this.converterService.generateContent(prompt);
       const lang = resp.text ?? resp.result ?? resp.output ?? JSON.stringify(resp);
       this.linguaggioRilevato = lang.trim();
-    } catch (e) {
+    } catch (e: any) {
       console.error('Rilevamento linguaggio fallito', e);
+      const friendlyError = this.converterService.getFriendlyErrorMessage(e);
+      if (friendlyError) {
+        this.errore = friendlyError;
+      }
     } finally {
       this.rilevamentoInCorso = false;
     }
@@ -191,9 +206,14 @@ export class AssistenteCodiceComponent implements OnInit, OnDestroy {
       this.historyService.addEntry('code', nomeOperazione, this.risultato || '');
     } catch (err: any) {
       console.error(`Errore ${nomeOperazione}:`, err);
-      this.errore = 'Si è verificato un errore. Controlla la tua chiave API o la connessione.';
-      if (err.error?.error?.message) {
-        this.errore += ` (${err.error.error.message})`;
+      const friendlyError = this.converterService.getFriendlyErrorMessage(err);
+      if (friendlyError) {
+        this.errore = friendlyError;
+      } else {
+        this.errore = 'Si è verificato un errore. Controlla la tua chiave API o la connessione.';
+        if (err.error?.error?.message) {
+          this.errore += ` (${err.error.error.message})`;
+        }
       }
     } finally {
       this.caricamento = false;

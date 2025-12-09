@@ -239,9 +239,14 @@ export class ConvertitoreFileComponent implements OnInit {
       const response = await this.converterService.generateContent(prompt, base64Data);
       this.descrizioneAI = response.text;
       this.historyService.addEntry('file', 'Descrizione Immagine', this.descrizioneAI || '');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Errore durante la generazione della descrizione:', error);
-      this.descrizioneAI = 'Errore durante la generazione della descrizione.';
+      const friendlyError = this.converterService.getFriendlyErrorMessage(error);
+      if (friendlyError) {
+        this.descrizioneAI = friendlyError;
+      } else {
+        this.descrizioneAI = 'Errore durante la generazione della descrizione.';
+      }
     } finally {
       this.staGenerandoDescrizione = false;
     }
