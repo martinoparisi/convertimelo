@@ -1,32 +1,26 @@
 import { Routes } from '@angular/router';
-import { LoginComponent } from './components/login/login.component';
-import { RegisterComponent } from './components/register/register.component';
-import { MainLayoutComponent } from './components/main-layout/main-layout.component';
-import { DashboardComponent } from './components/dashboard/dashboard.component';
-import { FileConverterComponent } from './components/file-converter/file-converter.component';
-import { UnitConverterComponent } from './components/unit-converter/unit-converter.component';
-import { CurrencyConverterComponent } from './components/currency-converter/currency-converter.component';
-import { TextManipulatorComponent } from './components/text-manipulator/text-manipulator.component';
-import { CodeConverterComponent } from './components/code-converter/code-converter.component';
-import { ColorConverterComponent } from './components/color-converter/color-converter.component';
+import { AccessoComponent } from './components/accesso/accesso.component';
+import { RegistrazioneComponent } from './components/registrazione/registrazione.component';
+import { CronologiaComponent } from './components/cronologia/cronologia.component';
+import { ConvertitoreFileComponent } from './components/convertitore-file/convertitore-file.component';
+import { ConvertitoreUnitaComponent } from './components/convertitore-unita/convertitore-unita.component';
+import { ConvertitoreValutaComponent } from './components/convertitore-valuta/convertitore-valuta.component';
+import { ManipolatoreTestoComponent } from './components/manipolatore-testo/manipolatore-testo.component';
+import { AssistenteCodiceComponent } from './components/assistente-codice/assistente-codice.component';
+import { GeneratoreAIComponent } from './components/generatore-ai/generatore-ai.component';
+import { ConvertitoreColoreComponent } from './components/convertitore-colore/convertitore-colore.component';
 import { authGuard } from './guards/auth-guard';
 
 export const routes: Routes = [
-  { path: 'login', component: LoginComponent },
-  { path: 'register', component: RegisterComponent },
-  {
-    path: '',
-    component: MainLayoutComponent,
-    // canActivate: [authGuard], // Made optional as requested
-    children: [
-      { path: 'dashboard', component: DashboardComponent },
-      { path: 'file-converter', component: FileConverterComponent },
-      { path: 'unit-converter', component: UnitConverterComponent },
-      { path: 'currency-converter', component: CurrencyConverterComponent },
-      { path: 'text-manipulator', component: TextManipulatorComponent },
-      { path: 'code-converter', component: CodeConverterComponent },
-      { path: 'color-converter', component: ColorConverterComponent },
-      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
-    ],
-  },
+  { path: 'accesso', component: AccessoComponent },
+  { path: 'registrazione', component: RegistrazioneComponent },
+  { path: 'cronologia', component: CronologiaComponent },
+  { path: 'convertitore-file', component: ConvertitoreFileComponent },
+  { path: 'convertitore-unita', component: ConvertitoreUnitaComponent },
+  { path: 'convertitore-valuta', component: ConvertitoreValutaComponent },
+  { path: 'manipolatore-testo', component: ManipolatoreTestoComponent },
+  { path: 'assistente-codice', component: AssistenteCodiceComponent },
+  { path: 'generatore-ai', component: GeneratoreAIComponent },
+  { path: 'convertitore-colore', component: ConvertitoreColoreComponent },
+  { path: '', redirectTo: 'cronologia', pathMatch: 'full' },
 ];

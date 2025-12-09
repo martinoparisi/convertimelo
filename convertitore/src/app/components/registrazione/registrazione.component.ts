@@ -5,7 +5,7 @@ import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
-  selector: 'app-register',
+  selector: 'app-registrazione',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, RouterLink],
   template: `
@@ -18,7 +18,7 @@ import { AuthService } from '../../services/auth.service';
             Crea il tuo account
           </h2>
         </div>
-        <form class="mt-8 space-y-6" [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+        <form class="mt-8 space-y-6" [formGroup]="formRegistrazione" (ngSubmit)="invia()">
           <div class="rounded-md shadow-sm -space-y-px">
             <div>
               <label for="email-address" class="sr-only">Indirizzo Email</label>
@@ -49,7 +49,7 @@ import { AuthService } from '../../services/auth.service';
           <div>
             <button
               type="submit"
-              [disabled]="registerForm.invalid"
+              [disabled]="formRegistrazione.invalid"
               class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
             >
               Registrati
@@ -70,25 +70,25 @@ import { AuthService } from '../../services/auth.service';
   `,
   styles: [],
 })
-export class RegisterComponent {
+export class RegistrazioneComponent {
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
   private router = inject(Router);
 
-  registerForm: FormGroup = this.fb.group({
+  formRegistrazione: FormGroup = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(6)]],
   });
 
-  async onSubmit() {
-    if (this.registerForm.valid) {
+  async invia() {
+    if (this.formRegistrazione.valid) {
       try {
-        const { email, password } = this.registerForm.value;
+        const { email, password } = this.formRegistrazione.value;
         await this.authService.register(email, password);
         this.router.navigate(['/']);
       } catch (error) {
-        console.error('Registration failed', error);
-        alert('Registration failed: ' + (error as any).message);
+        console.error('Registrazione fallita', error);
+        alert('Registrazione fallita: ' + (error as any).message);
       }
     }
   }

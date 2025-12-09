@@ -1,14 +1,14 @@
-import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HistoryService } from '../../services/history.service';
 
 /**
- * Component for converting colors between different formats (HEX, RGB, HSL, CMYK).
- * Includes a visual color picker and real-time conversion.
+ * Componente per la conversione di colori tra diversi formati (HEX, RGB, HSL, CMYK).
+ * Include un selettore di colori visivo e conversione in tempo reale.
  */
 @Component({
-  selector: 'app-color-converter',
+  selector: 'app-convertitore-colore',
   standalone: true,
   imports: [CommonModule, FormsModule],
   template: `
@@ -16,17 +16,17 @@ import { HistoryService } from '../../services/history.service';
       <h2 class="card-title">Convertitore Colore</h2>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <!-- Color Preview & Picker -->
+        <!-- Anteprima Colore & Selettore -->
         <div class="flex flex-col items-center justify-center space-y-4">
           <div class="relative w-64 h-64 group">
             <div
               class="w-full h-full rounded-full shadow-lg border-4 border-white dark:border-slate-700 transition-colors duration-200"
-              [style.background-color]="hexValue"
+              [style.background-color]="valoreHex"
             ></div>
             <input
               type="color"
-              [ngModel]="hexValue"
-              (ngModelChange)="updateFromPicker($event)"
+              [ngModel]="valoreHex"
+              (ngModelChange)="aggiornaDaSelettore($event)"
               class="absolute inset-0 w-full h-full opacity-0 cursor-pointer rounded-full"
             />
             <div
@@ -49,17 +49,17 @@ import { HistoryService } from '../../services/history.service';
           </div>
         </div>
 
-        <!-- Inputs -->
+        <!-- Input -->
         <div class="space-y-6">
           <!-- HEX -->
           <div>
             <div class="flex justify-between items-center mb-1">
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">HEX</label>
               <button
-                (click)="copyToClipboard(hexValue, 'hex')"
+                (click)="copiaNegliAppunti(valoreHex, 'hex')"
                 class="text-xs flex items-center gap-1 text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 transition-colors"
               >
-                <span *ngIf="copiedField !== 'hex'">
+                <span *ngIf="campoCopiato !== 'hex'">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path
                       stroke-linecap="round"
@@ -70,7 +70,7 @@ import { HistoryService } from '../../services/history.service';
                   </svg>
                 </span>
                 <span
-                  *ngIf="copiedField === 'hex'"
+                  *ngIf="campoCopiato === 'hex'"
                   class="flex items-center gap-1 text-green-600 dark:text-green-400"
                 >
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -90,8 +90,8 @@ import { HistoryService } from '../../services/history.service';
               </div>
               <input
                 type="text"
-                [(ngModel)]="hexInput"
-                (ngModelChange)="updateFromHex($event)"
+                [(ngModel)]="inputHex"
+                (ngModelChange)="aggiornaDaHex($event)"
                 class="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-7 pr-12 sm:text-sm border-gray-300 dark:border-gray-600 dark:bg-slate-900/50 dark:text-white rounded-md p-2 border"
                 placeholder="000000"
                 maxlength="6"
@@ -105,11 +105,11 @@ import { HistoryService } from '../../services/history.service';
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">RGB</label>
               <button
                 (click)="
-                  copyToClipboard('rgb(' + rValue + ', ' + gValue + ', ' + bValue + ')', 'rgb')
+                  copiaNegliAppunti('rgb(' + valoreR + ', ' + valoreG + ', ' + valoreB + ')', 'rgb')
                 "
                 class="text-xs flex items-center gap-1 text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 transition-colors"
               >
-                <span *ngIf="copiedField !== 'rgb'">
+                <span *ngIf="campoCopiato !== 'rgb'">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path
                       stroke-linecap="round"
@@ -120,7 +120,7 @@ import { HistoryService } from '../../services/history.service';
                   </svg>
                 </span>
                 <span
-                  *ngIf="copiedField === 'rgb'"
+                  *ngIf="campoCopiato === 'rgb'"
                   class="flex items-center gap-1 text-green-600 dark:text-green-400"
                 >
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -139,8 +139,8 @@ import { HistoryService } from '../../services/history.service';
                 <label class="text-xs text-gray-500 dark:text-gray-400">R</label>
                 <input
                   type="number"
-                  [(ngModel)]="rValue"
-                  (ngModelChange)="updateFromRgb()"
+                  [(ngModel)]="valoreR"
+                  (ngModelChange)="aggiornaDaRgb()"
                   min="0"
                   max="255"
                   class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-slate-900/50 dark:text-white rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm p-2 border"
@@ -150,8 +150,8 @@ import { HistoryService } from '../../services/history.service';
                 <label class="text-xs text-gray-500 dark:text-gray-400">G</label>
                 <input
                   type="number"
-                  [(ngModel)]="gValue"
-                  (ngModelChange)="updateFromRgb()"
+                  [(ngModel)]="valoreG"
+                  (ngModelChange)="aggiornaDaRgb()"
                   min="0"
                   max="255"
                   class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-slate-900/50 dark:text-white rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm p-2 border"
@@ -161,8 +161,8 @@ import { HistoryService } from '../../services/history.service';
                 <label class="text-xs text-gray-500 dark:text-gray-400">B</label>
                 <input
                   type="number"
-                  [(ngModel)]="bValue"
-                  (ngModelChange)="updateFromRgb()"
+                  [(ngModel)]="valoreB"
+                  (ngModelChange)="aggiornaDaRgb()"
                   min="0"
                   max="255"
                   class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-slate-900/50 dark:text-white rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm p-2 border"
@@ -177,11 +177,14 @@ import { HistoryService } from '../../services/history.service';
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">HSL</label>
               <button
                 (click)="
-                  copyToClipboard('hsl(' + hValue + ', ' + sValue + '%, ' + lValue + '%)', 'hsl')
+                  copiaNegliAppunti(
+                    'hsl(' + valoreH + ', ' + valoreS + '%, ' + valoreL + '%)',
+                    'hsl'
+                  )
                 "
                 class="text-xs flex items-center gap-1 text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 transition-colors"
               >
-                <span *ngIf="copiedField !== 'hsl'">
+                <span *ngIf="campoCopiato !== 'hsl'">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path
                       stroke-linecap="round"
@@ -192,7 +195,7 @@ import { HistoryService } from '../../services/history.service';
                   </svg>
                 </span>
                 <span
-                  *ngIf="copiedField === 'hsl'"
+                  *ngIf="campoCopiato === 'hsl'"
                   class="flex items-center gap-1 text-green-600 dark:text-green-400"
                 >
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -211,8 +214,8 @@ import { HistoryService } from '../../services/history.service';
                 <label class="text-xs text-gray-500 dark:text-gray-400">H</label>
                 <input
                   type="number"
-                  [(ngModel)]="hValue"
-                  (ngModelChange)="updateFromHsl()"
+                  [(ngModel)]="valoreH"
+                  (ngModelChange)="aggiornaDaHsl()"
                   min="0"
                   max="360"
                   class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-slate-900/50 dark:text-white rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm p-2 border"
@@ -222,8 +225,8 @@ import { HistoryService } from '../../services/history.service';
                 <label class="text-xs text-gray-500 dark:text-gray-400">S (%)</label>
                 <input
                   type="number"
-                  [(ngModel)]="sValue"
-                  (ngModelChange)="updateFromHsl()"
+                  [(ngModel)]="valoreS"
+                  (ngModelChange)="aggiornaDaHsl()"
                   min="0"
                   max="100"
                   class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-slate-900/50 dark:text-white rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm p-2 border"
@@ -233,8 +236,8 @@ import { HistoryService } from '../../services/history.service';
                 <label class="text-xs text-gray-500 dark:text-gray-400">L (%)</label>
                 <input
                   type="number"
-                  [(ngModel)]="lValue"
-                  (ngModelChange)="updateFromHsl()"
+                  [(ngModel)]="valoreL"
+                  (ngModelChange)="aggiornaDaHsl()"
                   min="0"
                   max="100"
                   class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-slate-900/50 dark:text-white rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm p-2 border"
@@ -248,100 +251,100 @@ import { HistoryService } from '../../services/history.service';
   `,
   styles: [],
 })
-export class ColorConverterComponent {
+export class ConvertitoreColoreComponent {
   private historyService = inject(HistoryService);
 
-  hexValue: string = '#6366f1'; // Default Indigo-500
-  hexInput: string = '6366f1';
+  valoreHex: string = '#6366f1'; // Default Indigo-500
+  inputHex: string = '6366f1';
 
-  rValue: number = 99;
-  gValue: number = 102;
-  bValue: number = 241;
+  valoreR: number = 99;
+  valoreG: number = 102;
+  valoreB: number = 241;
 
-  hValue: number = 239;
-  sValue: number = 84;
-  lValue: number = 67;
+  valoreH: number = 239;
+  valoreS: number = 84;
+  valoreL: number = 67;
 
-  copiedField: string | null = null;
+  campoCopiato: string | null = null;
 
-  updateFromPicker(hex: string) {
-    this.hexValue = hex;
-    this.hexInput = hex.replace('#', '');
-    this.updateFromHex(this.hexInput);
+  aggiornaDaSelettore(hex: string) {
+    this.valoreHex = hex;
+    this.inputHex = hex.replace('#', '');
+    this.aggiornaDaHex(this.inputHex);
   }
 
-  copyToClipboard(text: string, field: string) {
-    navigator.clipboard.writeText(text).then(() => {
-      this.copiedField = field;
+  copiaNegliAppunti(testo: string, campo: string) {
+    navigator.clipboard.writeText(testo).then(() => {
+      this.campoCopiato = campo;
       setTimeout(() => {
-        this.copiedField = null;
+        this.campoCopiato = null;
       }, 2000);
     });
   }
 
-  updateFromHex(hex: string) {
-    // Remove # if present
+  aggiornaDaHex(hex: string) {
+    // Rimuovi # se presente
     hex = hex.replace('#', '');
-    this.hexInput = hex;
+    this.inputHex = hex;
 
     if (hex.length === 6) {
-      this.hexValue = '#' + hex;
+      this.valoreHex = '#' + hex;
 
-      // Convert to RGB
-      this.rValue = parseInt(hex.substring(0, 2), 16);
-      this.gValue = parseInt(hex.substring(2, 4), 16);
-      this.bValue = parseInt(hex.substring(4, 6), 16);
+      // Converti in RGB
+      this.valoreR = parseInt(hex.substring(0, 2), 16);
+      this.valoreG = parseInt(hex.substring(2, 4), 16);
+      this.valoreB = parseInt(hex.substring(4, 6), 16);
 
-      // Convert to HSL
-      this.rgbToHsl(this.rValue, this.gValue, this.bValue);
+      // Converti in HSL
+      this.rgbAHsl(this.valoreR, this.valoreG, this.valoreB);
     }
   }
 
-  updateFromRgb() {
-    // Clamp values
-    this.rValue = Math.min(255, Math.max(0, this.rValue || 0));
-    this.gValue = Math.min(255, Math.max(0, this.gValue || 0));
-    this.bValue = Math.min(255, Math.max(0, this.bValue || 0));
+  aggiornaDaRgb() {
+    // Limita i valori
+    this.valoreR = Math.min(255, Math.max(0, this.valoreR || 0));
+    this.valoreG = Math.min(255, Math.max(0, this.valoreG || 0));
+    this.valoreB = Math.min(255, Math.max(0, this.valoreB || 0));
 
-    // Convert to Hex
+    // Converti in Hex
     const toHex = (n: number) => {
       const hex = n.toString(16);
       return hex.length === 1 ? '0' + hex : hex;
     };
-    this.hexInput = toHex(this.rValue) + toHex(this.gValue) + toHex(this.bValue);
-    this.hexValue = '#' + this.hexInput;
+    this.inputHex = toHex(this.valoreR) + toHex(this.valoreG) + toHex(this.valoreB);
+    this.valoreHex = '#' + this.inputHex;
 
-    // Convert to HSL
-    this.rgbToHsl(this.rValue, this.gValue, this.bValue);
+    // Converti in HSL
+    this.rgbAHsl(this.valoreR, this.valoreG, this.valoreB);
   }
 
-  updateFromHsl() {
-    // Clamp values
-    this.hValue = Math.min(360, Math.max(0, this.hValue || 0));
-    this.sValue = Math.min(100, Math.max(0, this.sValue || 0));
-    this.lValue = Math.min(100, Math.max(0, this.lValue || 0));
+  aggiornaDaHsl() {
+    // Limita i valori
+    this.valoreH = Math.min(360, Math.max(0, this.valoreH || 0));
+    this.valoreS = Math.min(100, Math.max(0, this.valoreS || 0));
+    this.valoreL = Math.min(100, Math.max(0, this.valoreL || 0));
 
-    // Convert to RGB
-    const s = this.sValue / 100;
-    const l = this.lValue / 100;
-    const k = (n: number) => (n + this.hValue / 30) % 12;
+    // Converti in RGB
+    const s = this.valoreS / 100;
+    const l = this.valoreL / 100;
+    const k = (n: number) => (n + this.valoreH / 30) % 12;
     const a = s * Math.min(l, 1 - l);
     const f = (n: number) => l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
 
-    this.rValue = Math.round(255 * f(0));
-    this.gValue = Math.round(255 * f(8));
-    this.bValue = Math.round(255 * f(4));
+    this.valoreR = Math.round(255 * f(0));
+    this.valoreG = Math.round(255 * f(8));
+    this.valoreB = Math.round(255 * f(4));
 
-    // Convert to Hex
+    // Converti in Hex
     const toHex = (n: number) => {
       const hex = n.toString(16);
       return hex.length === 1 ? '0' + hex : hex;
     };
-    this.hexInput = toHex(this.rValue) + toHex(this.gValue) + toHex(this.bValue);
-    this.hexValue = '#' + this.hexInput;
+    this.inputHex = toHex(this.valoreR) + toHex(this.valoreG) + toHex(this.valoreB);
+    this.valoreHex = '#' + this.inputHex;
   }
 
-  private rgbToHsl(r: number, g: number, b: number) {
+  private rgbAHsl(r: number, g: number, b: number) {
     r /= 255;
     g /= 255;
     b /= 255;
@@ -368,8 +371,8 @@ export class ColorConverterComponent {
       h /= 6;
     }
 
-    this.hValue = Math.round(h * 360);
-    this.sValue = Math.round(s * 100);
-    this.lValue = Math.round(l * 100);
+    this.valoreH = Math.round(h * 360);
+    this.valoreS = Math.round(s * 100);
+    this.valoreL = Math.round(l * 100);
   }
 }

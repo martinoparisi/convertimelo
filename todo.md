@@ -1,6 +1,6 @@
 # GUI
 
--
+- si può fare in modo che nel slettore a pill nell'header posso cliccare e tenere premuta la selezione per grabbarla e portarla su un altra sezione? ad esempio, invece che cliccare la sezione che voglio raggiungere, grabbo la parte di selezione della pill e la sposto sulla sezione che voglio aprire.
 
 # FUNZIONALITà
 

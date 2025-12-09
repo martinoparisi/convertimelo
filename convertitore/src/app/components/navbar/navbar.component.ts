@@ -18,16 +18,16 @@ import { AuthService } from '../../services/auth.service';
 import { HistoryService } from '../../services/history.service';
 import { Firestore } from '@angular/fire/firestore';
 import { doc, setDoc, onSnapshot } from 'firebase/firestore';
-import { LoginPopupComponent } from '../login-popup/login-popup.component';
+import { PopupAccessoComponent } from '../popup-accesso/popup-accesso.component';
 
 /**
- * Navigation bar component.
- * Handles top navigation, user authentication status display, and responsive menu.
+ * Componente della barra di navigazione.
+ * Gestisce la navigazione superiore, la visualizzazione dello stato di autenticazione dell'utente e il menu responsive.
  */
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [CommonModule, RouterLink, LoginPopupComponent],
+  imports: [CommonModule, RouterLink, PopupAccessoComponent],
   template: `
     <nav class="bg-slate-900 sticky top-0 z-50 transition-all duration-300">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -43,13 +43,13 @@ import { LoginPopupComponent } from '../login-popup/login-popup.component';
             </div>
           </div>
 
-          <!-- Desktop Pill Selector (Hidden on Mobile) -->
+          <!-- Selettore a pillola desktop (nascosto su mobile) -->
           <div class="hidden md:flex flex-1 justify-center items-center">
             <div
               #navContainerDesktop
               class="relative flex bg-slate-800/50 rounded-full p-1 border border-indigo-500/10 transition-colors duration-200"
             >
-              <!-- Sliding Pill Desktop -->
+              <!-- Pillola scorrevole desktop -->
               <div
                 #pillDesktop
                 class="absolute top-1 bottom-1 bg-indigo-600 rounded-full transition-all duration-300 ease-out shadow-[0_0_15px_rgba(79,70,229,0.4)]"
@@ -58,7 +58,7 @@ import { LoginPopupComponent } from '../login-popup/login-popup.component';
                 [class.opacity-0]="activeLinkIndex() === -1"
               ></div>
 
-              <!-- Links Desktop -->
+              <!-- Link desktop -->
               <a
                 *ngFor="let link of links; let i = index"
                 #navItemDesktop
@@ -72,9 +72,9 @@ import { LoginPopupComponent } from '../login-popup/login-popup.component';
           </div>
 
           <div class="flex items-center space-x-2">
-            <!-- History Link (icon only) -->
+            <!-- Link cronologia (solo icona) -->
             <a
-              routerLink="/dashboard"
+              routerLink="/cronologia"
               class="text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center group"
             >
               <svg
@@ -92,7 +92,7 @@ import { LoginPopupComponent } from '../login-popup/login-popup.component';
               </svg>
             </a>
 
-            <!-- Dark/Light Mode Toggle (icon only) -->
+            <!-- Toggle modalità scura/chiara (solo icona) -->
             <button
               (click)="toggleDarkMode()"
               class="!ml-0 text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center group"
@@ -127,7 +127,7 @@ import { LoginPopupComponent } from '../login-popup/login-popup.component';
               </svg>
             </button>
 
-            <!-- User Profile / Login -->
+            <!-- Profilo utente / Login -->
             <ng-container *ngIf="authService.user$ | async as user; else loginButton">
               <div class="relative ml-3">
                 <div>
@@ -139,7 +139,7 @@ import { LoginPopupComponent } from '../login-popup/login-popup.component';
                     aria-expanded="false"
                     aria-haspopup="true"
                   >
-                    <span class="sr-only">Open user menu</span>
+                    <span class="sr-only">Apri menu utente</span>
                     <div
                       class="h-8 w-8 rounded-full flex items-center justify-center bg-indigo-600 text-white font-bold"
                     >
@@ -148,7 +148,7 @@ import { LoginPopupComponent } from '../login-popup/login-popup.component';
                   </button>
                 </div>
 
-                <!-- Profile Dropdown -->
+                <!-- Menu a discesa profilo -->
                 <div
                   *ngIf="isProfileMenuOpen()"
                   class="origin-top-right absolute right-0 mt-2 w-72 rounded-md shadow-lg py-1 bg-slate-800 ring-1 ring-black ring-opacity-5 focus:outline-none border border-gray-700 z-50"
@@ -204,23 +204,23 @@ import { LoginPopupComponent } from '../login-popup/login-popup.component';
 
             <ng-template #loginButton>
               <button
-                (click)="openLoginPopup()"
+                (click)="apriPopupAccesso()"
                 class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 shadow-[0_0_10px_rgba(79,70,229,0.3)] hover:shadow-[0_0_15px_rgba(99,102,241,0.5)]"
               >
                 Accedi
               </button>
             </ng-template>
 
-            <!-- Removed mobile hamburger; conversion selector will be shown below header -->
+            <!-- Rimosso hamburger mobile; il selettore di conversione sarà mostrato sotto l'intestazione -->
           </div>
         </div>
       </div>
 
-      <!-- Conversion selector bar under header (Dropdown) - Mobile Only -->
+      <!-- Barra selettore conversione sotto l'intestazione (Menu a discesa) - Solo Mobile -->
       <div class="md:hidden w-full bg-slate-900 transition-colors duration-200 pb-3">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div class="relative">
-            <!-- Dropdown Button -->
+            <!-- Pulsante menu a discesa -->
             <button
               (click)="toggleConverterDropdown()"
               class="w-full flex items-center justify-between bg-slate-800/50 rounded-lg p-3 border border-indigo-500/10 text-gray-300 hover:text-white transition-colors"
@@ -239,7 +239,7 @@ import { LoginPopupComponent } from '../login-popup/login-popup.component';
               </svg>
             </button>
 
-            <!-- Dropdown Menu -->
+            <!-- Menu a discesa -->
             <div
               *ngIf="isConverterDropdownOpen()"
               class="absolute top-full left-0 right-0 mt-2 bg-slate-800 rounded-lg shadow-xl border border-gray-700 overflow-hidden z-50"
@@ -260,10 +260,10 @@ import { LoginPopupComponent } from '../login-popup/login-popup.component';
         </div>
       </div>
 
-      <!-- Mobile menu removed (use selector bar below header) -->
+      <!-- Menu mobile rimosso (usa barra selettore sotto l'intestazione) -->
     </nav>
 
-    <app-login-popup *ngIf="showLoginPopup" (closePopup)="closeLoginPopup()"></app-login-popup>
+    <app-popup-accesso *ngIf="mostraPopupAccesso" (chiudiPopup)="chiudiPopupAccesso()"></app-popup-accesso>
   `,
   styles: [],
 })
@@ -285,12 +285,12 @@ export class NavbarComponent implements AfterViewInit, OnInit, OnDestroy {
   private resizeHandler = () => this.updatePillPosition();
 
   links = [
-    { label: 'file', path: '/file-converter' },
-    { label: 'unità', path: '/unit-converter' },
-    { label: 'valute', path: '/currency-converter' },
-    { label: 'testo', path: '/text-manipulator' },
-    { label: 'code', path: '/code-converter' },
-    { label: 'colore', path: '/color-converter' },
+    { label: 'file', path: '/convertitore-file' },
+    { label: 'unità', path: '/convertitore-unita' },
+    { label: 'valute', path: '/convertitore-valuta' },
+    { label: 'testo', path: '/manipolatore-testo' },
+    { label: 'codice', path: '/assistente-codice' },
+    { label: 'colore', path: '/convertitore-colore' },
   ];
 
   activeLinkIndex = signal<number>(-1);
@@ -303,11 +303,11 @@ export class NavbarComponent implements AfterViewInit, OnInit, OnDestroy {
   isMobileMenuOpen = signal<boolean>(false);
   isConverterDropdownOpen = signal<boolean>(false);
   isProfileMenuOpen = signal<boolean>(false);
-  showLoginPopup = false;
+  mostraPopupAccesso = false;
   username = signal<string>('');
 
   constructor() {
-    // Check system preference or saved preference
+    // Controlla preferenza di sistema o preferenza salvata
     if (
       localStorage.getItem('theme') === 'dark' ||
       (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)
@@ -319,7 +319,7 @@ export class NavbarComponent implements AfterViewInit, OnInit, OnDestroy {
       document.documentElement.classList.remove('dark');
     }
 
-    // Load username if exists
+    // Carica nome utente se esiste
     const savedUsername = localStorage.getItem('username');
     if (savedUsername) {
       this.username.set(savedUsername);
@@ -327,28 +327,28 @@ export class NavbarComponent implements AfterViewInit, OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    // Listen to auth state changes
+    // Ascolta i cambiamenti dello stato di autenticazione
     this.authService.user$.subscribe((user) => {
-      // Unsubscribe from previous user listener if any
+      // Annulla l'iscrizione dal listener utente precedente se presente
       if (this.userUnsubscribe) {
         this.userUnsubscribe();
         this.userUnsubscribe = null;
       }
 
       if (user) {
-        // Listen to user profile changes in real-time
+        // Ascolta i cambiamenti del profilo utente in tempo reale
         const userDoc = doc(this.firestore, 'users', user.uid);
         this.userUnsubscribe = onSnapshot(userDoc, (snapshot) => {
           if (snapshot.exists()) {
             const data = snapshot.data();
 
-            // Update username
+            // Aggiorna nome utente
             if (data['username']) {
               this.username.set(data['username']);
               localStorage.setItem('username', data['username']);
             }
 
-            // Update theme
+            // Aggiorna tema
             if (data['theme']) {
               const isDark = data['theme'] === 'dark';
               this.isDarkMode.set(isDark);
@@ -363,10 +363,10 @@ export class NavbarComponent implements AfterViewInit, OnInit, OnDestroy {
           }
         });
 
-        // Sync any pending history
+        // Sincronizza eventuale cronologia in sospeso
         this.historyService.syncPendingOnLogin();
       } else {
-        // Reset to local storage or defaults on logout
+        // Ripristina a local storage o default al logout
         const savedUsername = localStorage.getItem('username');
         this.username.set(savedUsername || '');
       }
@@ -384,20 +384,20 @@ export class NavbarComponent implements AfterViewInit, OnInit, OnDestroy {
   }
 
   ngAfterViewInit() {
-    // Update pill on route change
+    // Aggiorna pillola al cambio di rotta
     this.router.events.pipe(filter((event) => event instanceof NavigationEnd)).subscribe(() => {
       this.updatePillPosition();
     });
 
-    // Initial check with multiple attempts to ensure rendering is complete
+    // Controllo iniziale con tentativi multipli per assicurare che il rendering sia completo
     setTimeout(() => this.updatePillPosition(), 50);
     setTimeout(() => this.updatePillPosition(), 200);
     setTimeout(() => this.updatePillPosition(), 500);
 
-    // Update on resize
+    // Aggiorna al ridimensionamento
     window.addEventListener('resize', this.resizeHandler);
 
-    // Use ResizeObserver to detect layout changes
+    // Usa ResizeObserver per rilevare cambiamenti di layout
     this.resizeObserver = new ResizeObserver(() => {
       this.ngZone.run(() => {
         this.updatePillPosition();
@@ -411,7 +411,7 @@ export class NavbarComponent implements AfterViewInit, OnInit, OnDestroy {
       this.resizeObserver.observe(this.navContainerMobile.nativeElement);
     }
 
-    // Listen for changes in nav items
+    // Ascolta cambiamenti negli elementi di navigazione
     this.navItemsDesktop.changes.subscribe(() => this.updatePillPosition());
     this.navItemsMobile.changes.subscribe(() => this.updatePillPosition());
   }
@@ -423,7 +423,7 @@ export class NavbarComponent implements AfterViewInit, OnInit, OnDestroy {
     if (index !== -1) {
       this.activeLinkIndex.set(index);
 
-      // Update Desktop Pill
+      // Aggiorna Pillola Desktop
       const desktopItems = this.navItemsDesktop?.toArray();
       if (desktopItems && desktopItems[index]) {
         const element = desktopItems[index].nativeElement;
@@ -431,7 +431,7 @@ export class NavbarComponent implements AfterViewInit, OnInit, OnDestroy {
         this.pillWidthDesktop.set(element.offsetWidth);
       }
 
-      // Update Mobile Pill
+      // Aggiorna Pillola Mobile
       const mobileItems = this.navItemsMobile?.toArray();
       if (mobileItems && mobileItems[index]) {
         const element = mobileItems[index].nativeElement;
@@ -454,14 +454,14 @@ export class NavbarComponent implements AfterViewInit, OnInit, OnDestroy {
       document.documentElement.classList.remove('dark');
       localStorage.setItem('theme', 'light');
     }
-    // Persist user preference if logged in
+    // Persisti preferenza utente se loggato
     const user = this.authService.auth.currentUser;
     if (user) {
       try {
         const userDoc = doc(this.firestore, 'users', user.uid);
         setDoc(userDoc, { theme: this.isDarkMode() ? 'dark' : 'light' }, { merge: true } as any);
       } catch (err) {
-        console.error('Failed saving theme preference', err);
+        console.error('Impossibile salvare la preferenza del tema', err);
       }
     }
   }
@@ -478,26 +478,26 @@ export class NavbarComponent implements AfterViewInit, OnInit, OnDestroy {
     this.isProfileMenuOpen.update((v) => !v);
   }
 
-  openLoginPopup() {
-    this.showLoginPopup = true;
+  apriPopupAccesso() {
+    this.mostraPopupAccesso = true;
   }
 
-  closeLoginPopup() {
-    this.showLoginPopup = false;
+  chiudiPopupAccesso() {
+    this.mostraPopupAccesso = false;
   }
 
   updateUsername(event: any) {
     const newName = event.target.value;
     this.username.set(newName);
     localStorage.setItem('username', newName);
-    // Save to DB if user logged in
+    // Salva nel DB se l'utente è loggato
     const user = this.authService.auth.currentUser;
     if (user) {
       try {
         const userDoc = doc(this.firestore, 'users', user.uid);
         setDoc(userDoc, { username: newName }, { merge: true } as any);
       } catch (err) {
-        console.error('Failed to save username to Firestore', err);
+        console.error('Impossibile salvare il nome utente su Firestore', err);
       }
     }
   }

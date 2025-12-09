@@ -5,16 +5,16 @@ import { ConverterService } from '../../services/converter.service';
 import { HistoryService } from '../../services/history.service';
 
 /**
- * Component for AI content generation using Genkit (via Gemini API).
- * Allows users to input prompts and receive generated text.
+ * Componente per la generazione di contenuti AI usando Genkit (via Gemini API).
+ * Permette agli utenti di inserire prompt e ricevere testo generato.
  */
 @Component({
-  selector: 'app-genkit',
+  selector: 'app-generatore-ai',
   standalone: true,
   imports: [CommonModule, FormsModule],
   template: `
     <div class="card">
-      <h2 class="card-title">Genkit AI Generator</h2>
+      <h2 class="card-title">Generatore AI Genkit</h2>
 
       <div class="space-y-6">
         <div>
@@ -28,61 +28,61 @@ import { HistoryService } from '../../services/history.service';
         </div>
 
         <button
-          (click)="generate()"
-          [disabled]="loading || !prompt"
+          (click)="genera()"
+          [disabled]="caricamento || !prompt"
           class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
         >
-          <span *ngIf="loading">Generazione in corso...</span>
-          <span *ngIf="!loading">Genera Contenuto</span>
+          <span *ngIf="caricamento">Generazione in corso...</span>
+          <span *ngIf="!caricamento">Genera Contenuto</span>
         </button>
 
-        <div *ngIf="result" class="mt-6">
+        <div *ngIf="risultato" class="mt-6">
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300"
             >Output Generato</label
           >
           <div
             class="mt-1 p-4 bg-gray-50 dark:bg-gray-700 rounded-md border border-gray-200 dark:border-gray-600 text-gray-900 dark:text-white whitespace-pre-wrap"
           >
-            {{ result }}
+            {{ risultato }}
           </div>
         </div>
 
         <div
-          *ngIf="error"
+          *ngIf="errore"
           class="mt-4 p-4 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 rounded-md"
         >
-          {{ error }}
+          {{ errore }}
         </div>
       </div>
     </div>
   `,
   styles: [],
 })
-export class GenkitComponent {
+export class GeneratoreAIComponent {
   private converterService = inject(ConverterService);
   private historyService = inject(HistoryService);
 
   prompt: string = '';
-  result: string | null = null;
-  loading = false;
-  error: string | null = null;
+  risultato: string | null = null;
+  caricamento = false;
+  errore: string | null = null;
 
-  async generate() {
+  async genera() {
     if (!this.prompt) return;
 
-    this.loading = true;
-    this.error = null;
-    this.result = null;
+    this.caricamento = true;
+    this.errore = null;
+    this.risultato = null;
 
     try {
       const response = await this.converterService.generateContent(this.prompt);
-      this.result = response.text;
-      this.historyService.addEntry('genkit', this.prompt, this.result || '');
+      this.risultato = response.text;
+      this.historyService.addEntry('genkit', this.prompt, this.risultato || '');
     } catch (err: any) {
-      this.error = 'Generation failed. Please try again.';
+      this.errore = 'Generazione fallita. Riprova per favore.';
       console.error(err);
     } finally {
-      this.loading = false;
+      this.caricamento = false;
     }
   }
 }

@@ -5,10 +5,10 @@ import { HistoryService, HistoryEntry } from '../../services/history.service';
 import { map } from 'rxjs';
 
 /**
- * Dashboard component displaying user welcome message and recent activity history.
+ * Componente cruscotto che mostra il messaggio di benvenuto e la cronologia delle attività recenti.
  */
 @Component({
-  selector: 'app-dashboard',
+  selector: 'app-cronologia',
   standalone: true,
   imports: [CommonModule],
   template: `
@@ -32,8 +32,8 @@ import { map } from 'rxjs';
             Attività Recente
           </h3>
           <button
-            (click)="clearHistory()"
-            [disabled]="!(history$ | async)?.length"
+            (click)="svuotaCronologia()"
+            [disabled]="!(cronologia$ | async)?.length"
             class="text-red-600 dark:text-red-400 hover:text-red-500 dark:hover:text-red-300 text-sm flex items-center gap-1 transition-colors px-3 py-1 rounded-md hover:bg-red-50 dark:hover:bg-red-500/10 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent"
           >
             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -50,7 +50,7 @@ import { map } from 'rxjs';
 
         <div class="flow-root">
           <ul class="-mb-8">
-            <li *ngFor="let item of history$ | async">
+            <li *ngFor="let elemento of cronologia$ | async">
               <div class="relative pb-8">
                 <span
                   class="absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200 dark:bg-indigo-500/20"
@@ -63,7 +63,7 @@ import { map } from 'rxjs';
                     >
                       <!-- Icon based on type -->
                       <svg
-                        *ngIf="item.type === 'file'"
+                        *ngIf="elemento.type === 'file'"
                         class="h-5 w-5 text-white"
                         fill="none"
                         viewBox="0 0 24 24"
@@ -77,7 +77,7 @@ import { map } from 'rxjs';
                         />
                       </svg>
                       <svg
-                        *ngIf="item.type === 'unit'"
+                        *ngIf="elemento.type === 'unit'"
                         class="h-5 w-5 text-white"
                         fill="none"
                         viewBox="0 0 24 24"
@@ -91,7 +91,7 @@ import { map } from 'rxjs';
                         />
                       </svg>
                       <svg
-                        *ngIf="item.type === 'currency'"
+                        *ngIf="elemento.type === 'currency'"
                         class="h-5 w-5 text-white"
                         fill="none"
                         viewBox="0 0 24 24"
@@ -105,7 +105,7 @@ import { map } from 'rxjs';
                         />
                       </svg>
                       <svg
-                        *ngIf="item.type === 'text'"
+                        *ngIf="elemento.type === 'text'"
                         class="h-5 w-5 text-white"
                         fill="none"
                         viewBox="0 0 24 24"
@@ -119,7 +119,7 @@ import { map } from 'rxjs';
                         />
                       </svg>
                       <svg
-                        *ngIf="item.type === 'genkit'"
+                        *ngIf="elemento.type === 'genkit'"
                         class="h-5 w-5 text-white"
                         fill="none"
                         viewBox="0 0 24 24"
@@ -137,18 +137,18 @@ import { map } from 'rxjs';
                   <div class="min-w-0 flex-1 pt-1.5 flex justify-between space-x-4">
                     <div>
                       <p class="text-sm font-medium text-gray-900 dark:text-white">
-                        {{ item.input }}
+                        {{ elemento.input }}
                       </p>
-                      <p class="text-sm text-gray-500 dark:text-gray-400">{{ item.output }}</p>
+                      <p class="text-sm text-gray-500 dark:text-gray-400">{{ elemento.output }}</p>
                     </div>
                     <div
                       class="text-right text-sm whitespace-nowrap text-gray-500 dark:text-gray-400 flex flex-col items-end gap-1"
                     >
-                      <time [dateTime]="item.timestamp.toDate().toISOString()">{{
-                        item.timestamp.toDate() | date : 'short'
+                      <time [dateTime]="elemento.timestamp.toDate().toISOString()">{{
+                        elemento.timestamp.toDate() | date : 'short'
                       }}</time>
                       <button
-                        (click)="deleteEntry(item.id)"
+                        (click)="eliminaVoce(elemento.id)"
                         class="text-gray-400 hover:text-red-500 transition-colors p-1 rounded-full hover:bg-red-50 dark:hover:bg-red-900/20"
                         title="Elimina voce"
                       >
@@ -168,7 +168,7 @@ import { map } from 'rxjs';
             </li>
           </ul>
           <div
-            *ngIf="(history$ | async)?.length === 0"
+            *ngIf="(cronologia$ | async)?.length === 0"
             class="text-center text-gray-500 dark:text-gray-400 py-4"
           >
             Nessuna attività recente.
@@ -179,19 +179,19 @@ import { map } from 'rxjs';
   `,
   styles: [],
 })
-export class DashboardComponent {
-  private historyService = inject(HistoryService);
-  history$ = this.historyService
+export class CronologiaComponent {
+  private servizioCronologia = inject(HistoryService);
+  cronologia$ = this.servizioCronologia
     .getHistory()
     .pipe(map((items) => items as (HistoryEntry & { id: string })[]));
 
-  async clearHistory() {
+  async svuotaCronologia() {
     if (!confirm('Sei sicuro di voler cancellare tutta la cronologia?')) return;
-    await this.historyService.clearHistoryForCurrentUser();
+    await this.servizioCronologia.clearHistoryForCurrentUser();
   }
 
-  async deleteEntry(id: string) {
+  async eliminaVoce(id: string) {
     if (!confirm('Eliminare questa voce?')) return;
-    await this.historyService.deleteEntry(id);
+    await this.servizioCronologia.deleteEntry(id);
   }
 }

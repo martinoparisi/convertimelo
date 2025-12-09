@@ -4,7 +4,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { AuthService } from '../../services/auth.service';
 
 @Component({
-  selector: 'app-login-popup',
+  selector: 'app-popup-accesso',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
   template: `
@@ -21,7 +21,7 @@ import { AuthService } from '../../services/auth.service';
         <div
           class="fixed inset-0 bg-gray-900 bg-opacity-75 transition-opacity"
           aria-hidden="true"
-          (click)="close()"
+          (click)="chiudi()"
         ></div>
 
         <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true"
@@ -34,10 +34,10 @@ import { AuthService } from '../../services/auth.service';
           <div class="absolute top-0 right-0 pt-4 pr-4">
             <button
               type="button"
-              (click)="close()"
+              (click)="chiudi()"
               class="bg-slate-900 rounded-md text-gray-400 hover:text-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
             >
-              <span class="sr-only">Close</span>
+              <span class="sr-only">Chiudi</span>
               <svg
                 class="h-6 w-6"
                 xmlns="http://www.w3.org/2000/svg"
@@ -75,7 +75,7 @@ import { AuthService } from '../../services/auth.service';
               <!-- Google Login -->
               <button
                 type="button"
-                (click)="loginWithGoogle()"
+                (click)="accediConGoogle()"
                 class="w-full flex justify-center items-center px-4 py-3 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 mb-6"
               >
                 <svg class="h-5 w-5 mr-2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -110,7 +110,7 @@ import { AuthService } from '../../services/auth.service';
                 </div>
               </div>
 
-              <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-4">
+              <form [formGroup]="formAccesso" (ngSubmit)="invia()" class="space-y-4">
                 <div class="flex items-center space-x-4">
                   <span class="text-indigo-500 text-xl">@</span>
                   <div class="flex-1">
@@ -157,15 +157,15 @@ import { AuthService } from '../../services/auth.service';
                 <div class="mt-5 sm:mt-6 flex justify-center gap-4">
                   <button
                     type="button"
-                    (click)="onRegister()"
-                    [disabled]="loginForm.invalid"
+                    (click)="suRegistrazione()"
+                    [disabled]="formAccesso.invalid"
                     class="inline-flex justify-center w-40 rounded-full border border-indigo-600 shadow-sm px-4 py-2 bg-transparent text-base font-medium text-indigo-400 hover:bg-indigo-900/30 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:text-sm transition-all duration-200"
                   >
                     registrati
                   </button>
                   <button
                     type="submit"
-                    [disabled]="loginForm.invalid"
+                    [disabled]="formAccesso.invalid"
                     class="inline-flex justify-center w-40 rounded-full border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:text-sm transition-all duration-200"
                   >
                     <svg class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -188,54 +188,54 @@ import { AuthService } from '../../services/auth.service';
   `,
   styles: [],
 })
-export class LoginPopupComponent {
-  @Output() closePopup = new EventEmitter<void>();
+export class PopupAccessoComponent {
+  @Output() chiudiPopup = new EventEmitter<void>();
 
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
 
-  loginForm: FormGroup = this.fb.group({
+  formAccesso: FormGroup = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required]],
   });
 
-  close() {
-    this.closePopup.emit();
+  chiudi() {
+    this.chiudiPopup.emit();
   }
 
-  async onRegister() {
-    if (this.loginForm.valid) {
+  async suRegistrazione() {
+    if (this.formAccesso.valid) {
       try {
-        const { email, password } = this.loginForm.value;
+        const { email, password } = this.formAccesso.value;
         await this.authService.register(email, password);
-        this.close();
+        this.chiudi();
       } catch (error) {
-        console.error('Registration failed', error);
-        alert('Registration failed: ' + (error as any).message);
+        console.error('Registrazione fallita', error);
+        alert('Registrazione fallita: ' + (error as any).message);
       }
     }
   }
 
-  async onSubmit() {
-    if (this.loginForm.valid) {
+  async invia() {
+    if (this.formAccesso.valid) {
       try {
-        const { email, password } = this.loginForm.value;
+        const { email, password } = this.formAccesso.value;
         await this.authService.login(email, password);
-        this.close();
+        this.chiudi();
       } catch (error) {
-        console.error('Login failed', error);
-        alert('Login failed: ' + (error as any).message);
+        console.error('Login fallito', error);
+        alert('Login fallito: ' + (error as any).message);
       }
     }
   }
 
-  async loginWithGoogle() {
+  async accediConGoogle() {
     try {
       await this.authService.loginWithGoogle();
-      this.close();
+      this.chiudi();
     } catch (error) {
-      console.error('Google login failed', error);
-      alert('Google login failed: ' + (error as any).message);
+      console.error('Login con Google fallito', error);
+      alert('Login con Google fallito: ' + (error as any).message);
     }
   }
 }

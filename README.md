@@ -100,11 +100,3 @@ Apri il browser all'indirizzo `http://localhost:4200/`. L'applicazione si ricari
 
 - **Primo Caricamento**: Al primo avvio, l'applicazione scaricherà i binari WebAssembly per Pyodide e FFmpeg. Questo potrebbe richiedere alcuni secondi a seconda della velocità della connessione. I caricamenti successivi saranno molto più veloci grazie alla cache.
 - **Browser Supportati**: Si consiglia l'uso di browser moderni (Chrome, Edge, Firefox, Safari) per il pieno supporto di WebAssembly e delle API moderne.
-
-## 🤝 Contribuire
-
-Le Pull Request sono benvenute! Per modifiche importanti, apri prima una issue per discutere cosa vorresti cambiare.
-
-## 📄 Licenza
-
-[MIT](LICENSE)

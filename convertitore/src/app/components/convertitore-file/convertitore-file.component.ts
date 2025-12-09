@@ -9,11 +9,11 @@ import { fetchFile, toBlobURL } from '@ffmpeg/util';
 import { jsPDF } from 'jspdf';
 
 /**
- * Component for file conversion.
- * Supports image conversion (PNG, JPG, WEBP), PDF creation, and audio conversion using FFmpeg (WASM).
+ * Componente per la conversione di file.
+ * Supporta la conversione di immagini (PNG, JPG, WEBP), creazione di PDF e conversione audio usando FFmpeg (WASM).
  */
 @Component({
-  selector: 'app-file-converter',
+  selector: 'app-convertitore-file',
   standalone: true,
   imports: [CommonModule, FormsModule],
   template: `
@@ -21,17 +21,17 @@ import { jsPDF } from 'jspdf';
       <h2 class="card-title">Convertitore File</h2>
 
       <div class="space-y-6">
-        <!-- Upload Area -->
+        <!-- Area di Caricamento -->
         <div
           class="flex justify-center px-6 pt-5 pb-6 border-2 border-dashed rounded-md transition-all duration-300 group"
           [ngClass]="{
-            'border-indigo-500 bg-indigo-50 dark:bg-indigo-500/10': isDragging,
+            'border-indigo-500 bg-indigo-50 dark:bg-indigo-500/10': staTrascinando,
             'border-gray-300 dark:border-gray-600 hover:border-indigo-400 hover:bg-gray-50 dark:hover:bg-slate-800':
-              !isDragging
+              !staTrascinando
           }"
-          (dragover)="onDragOver($event)"
-          (dragleave)="onDragLeave($event)"
-          (drop)="onDrop($event)"
+          (dragover)="alTrascinamentoSopra($event)"
+          (dragleave)="alUscitaTrascinamento($event)"
+          (drop)="alRilascio($event)"
         >
           <div class="space-y-1 text-center">
             <svg
@@ -59,7 +59,7 @@ import { jsPDF } from 'jspdf';
                   name="file-upload"
                   type="file"
                   class="sr-only"
-                  (change)="onFileSelected($event)"
+                  (change)="alFileSelezionato($event)"
                   accept=".png,.jpeg,.jpg,.webp,.gif,.mp3,.mp4,.wav,.pdf,.txt"
                 />
               </label>
@@ -69,20 +69,20 @@ import { jsPDF } from 'jspdf';
           </div>
         </div>
 
-        <!-- Preview & Controls -->
-        <div *ngIf="selectedFile" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Anteprima & Controlli -->
+        <div *ngIf="fileSelezionato" class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div class="space-y-2">
             <h3 class="text-lg font-medium text-gray-900 dark:text-white">Anteprima</h3>
             <div
               class="relative h-64 bg-gray-100 dark:bg-slate-900/50 rounded-lg overflow-hidden flex items-center justify-center border border-gray-200 dark:border-gray-700"
             >
               <img
-                *ngIf="isImage(selectedFile)"
-                [src]="previewUrl"
+                *ngIf="eImmagine(fileSelezionato)"
+                [src]="urlAnteprima"
                 class="max-h-full max-w-full object-contain"
-                alt="Preview"
+                alt="Anteprima"
               />
-              <div *ngIf="!isImage(selectedFile)" class="text-center">
+              <div *ngIf="!eImmagine(fileSelezionato)" class="text-center">
                 <svg
                   class="mx-auto h-16 w-16 text-gray-400"
                   fill="none"
@@ -96,32 +96,34 @@ import { jsPDF } from 'jspdf';
                     d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 011.414.586l5.414 5.414a1 1 0 01.586 1.414V19a2 2 0 01-2 2z"
                   />
                 </svg>
-                <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">{{ selectedFile.name }}</p>
+                <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                  {{ fileSelezionato.name }}
+                </p>
               </div>
             </div>
 
-            <!-- AI Description Button -->
+            <!-- Pulsante Descrizione AI -->
             <button
-              *ngIf="isImage(selectedFile)"
-              (click)="generateDescription()"
-              [disabled]="isGeneratingDescription"
+              *ngIf="eImmagine(fileSelezionato)"
+              (click)="generaDescrizione()"
+              [disabled]="staGenerandoDescrizione"
               class="w-full mt-2 flex justify-center items-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-all shadow-[0_0_10px_rgba(147,51,234,0.3)] hover:shadow-[0_0_15px_rgba(147,51,234,0.5)]"
             >
-              <span *ngIf="isGeneratingDescription" class="animate-pulse">Generazione...</span>
-              <span *ngIf="!isGeneratingDescription">✨ Genera descrizione AI</span>
+              <span *ngIf="staGenerandoDescrizione" class="animate-pulse">Generazione...</span>
+              <span *ngIf="!staGenerandoDescrizione">✨ Genera descrizione AI</span>
             </button>
 
-            <!-- AI Result -->
+            <!-- Risultato AI -->
             <div
-              *ngIf="aiDescription"
+              *ngIf="descrizioneAI"
               class="mt-2 p-3 bg-gray-50 dark:bg-slate-900/50 rounded-md border border-gray-200 dark:border-indigo-500/30 text-sm text-gray-700 dark:text-gray-300"
             >
               <h4 class="font-medium mb-1 text-indigo-600 dark:text-indigo-400">Descrizione AI:</h4>
-              {{ aiDescription }}
+              {{ descrizioneAI }}
             </div>
 
             <p class="text-sm text-gray-500 dark:text-gray-400">
-              {{ selectedFile.name }} ({{ formatSize(selectedFile.size) }})
+              {{ fileSelezionato.name }} ({{ formattaDimensione(fileSelezionato.size) }})
             </p>
           </div>
 
@@ -135,19 +137,28 @@ import { jsPDF } from 'jspdf';
                 >Formato di Destinazione</label
               >
               <select
-                [(ngModel)]="targetFormat"
+                [(ngModel)]="formatoDestinazione"
                 class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md shadow-sm"
               >
-                <optgroup label="Immagini" *ngIf="isImage(selectedFile) || isUnknown(selectedFile)">
+                <optgroup
+                  label="Immagini"
+                  *ngIf="eImmagine(fileSelezionato) || eSconosciuto(fileSelezionato)"
+                >
                   <option value="image/jpeg">JPEG</option>
                   <option value="image/png">PNG</option>
                   <option value="image/webp">WEBP</option>
                 </optgroup>
-                <optgroup label="Documenti" *ngIf="isDoc(selectedFile) || isUnknown(selectedFile)">
+                <optgroup
+                  label="Documenti"
+                  *ngIf="eDocumento(fileSelezionato) || eSconosciuto(fileSelezionato)"
+                >
                   <option value="application/pdf">PDF</option>
                   <option value="text/plain">TXT</option>
                 </optgroup>
-                <optgroup label="Video" *ngIf="isVideo(selectedFile) || isUnknown(selectedFile)">
+                <optgroup
+                  label="Video"
+                  *ngIf="eVideo(fileSelezionato) || eSconosciuto(fileSelezionato)"
+                >
                   <option value="audio/mp3">MP3 (Audio)</option>
                   <option value="video/gif">GIF</option>
                 </optgroup>
@@ -156,18 +167,18 @@ import { jsPDF } from 'jspdf';
 
             <div
               *ngIf="
-                (isImage(selectedFile) || isUnknown(selectedFile)) &&
-                (targetFormat === 'image/jpeg' ||
-                  targetFormat === 'image/webp' ||
-                  targetFormat === 'application/pdf')
+                (eImmagine(fileSelezionato) || eSconosciuto(fileSelezionato)) &&
+                (formatoDestinazione === 'image/jpeg' ||
+                  formatoDestinazione === 'image/webp' ||
+                  formatoDestinazione === 'application/pdf')
               "
             >
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300"
-                >Qualità ({{ quality * 100 }}%)</label
+                >Qualità ({{ qualita * 100 }}%)</label
               >
               <input
                 type="range"
-                [(ngModel)]="quality"
+                [(ngModel)]="qualita"
                 min="0.1"
                 max="1"
                 step="0.1"
@@ -176,12 +187,12 @@ import { jsPDF } from 'jspdf';
             </div>
 
             <button
-              (click)="convert()"
-              [disabled]="isConverting"
+              (click)="converti()"
+              [disabled]="staConvertendo"
               class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-[0_0_10px_rgba(79,70,229,0.3)] text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-500 hover:shadow-[0_0_15px_rgba(99,102,241,0.5)] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
             >
-              <span *ngIf="isConverting">Conversione in corso...</span>
-              <span *ngIf="!isConverting">Converti e Scarica</span>
+              <span *ngIf="staConvertendo">Conversione in corso...</span>
+              <span *ngIf="!staConvertendo">Converti e Scarica</span>
             </button>
           </div>
         </div>
@@ -190,49 +201,49 @@ import { jsPDF } from 'jspdf';
   `,
   styles: [],
 })
-export class FileConverterComponent implements OnInit {
+export class ConvertitoreFileComponent implements OnInit {
   private historyService = inject(HistoryService);
   private http = inject(HttpClient);
   private converterService = inject(ConverterService);
 
-  selectedFile: File | null = null;
-  previewUrl: string | null = null;
-  targetFormat: string = 'image/jpeg';
-  quality: number = 0.8;
-  isDragging = false;
-  isConverting = false;
+  fileSelezionato: File | null = null;
+  urlAnteprima: string | null = null;
+  formatoDestinazione: string = 'image/jpeg';
+  qualita: number = 0.8;
+  staTrascinando = false;
+  staConvertendo = false;
   ffmpeg: FFmpeg | null = null;
-  ffmpegLoaded = false;
+  ffmpegCaricato = false;
 
-  aiDescription: string | null = null;
-  isGeneratingDescription = false;
+  descrizioneAI: string | null = null;
+  staGenerandoDescrizione = false;
 
   async ngOnInit() {
-    // Load FFmpeg on init
-    this.loadFFmpeg();
+    // Carica FFmpeg all'avvio
+    this.caricaFFmpeg();
   }
 
-  async generateDescription() {
-    if (!this.selectedFile || !this.isImage(this.selectedFile)) return;
+  async generaDescrizione() {
+    if (!this.fileSelezionato || !this.eImmagine(this.fileSelezionato)) return;
 
-    this.isGeneratingDescription = true;
-    this.aiDescription = null;
+    this.staGenerandoDescrizione = true;
+    this.descrizioneAI = null;
 
     try {
-      const base64 = await this.fileToBase64(this.selectedFile);
-      // Remove data URL prefix (e.g., "data:image/png;base64,")
+      const base64 = await this.fileToBase64(this.fileSelezionato);
+      // Rimuovi prefisso data URL (es. "data:image/png;base64,")
       const base64Data = base64.split(',')[1];
 
       const prompt =
         "Descrivi questa immagine in modo sintetico e breve in italiano. Rispondi SOLO con la descrizione, senza preamboli come 'Ecco la descrizione' o 'Certamente'.";
       const response = await this.converterService.generateContent(prompt, base64Data);
-      this.aiDescription = response.text;
-      this.historyService.addEntry('file', 'Image Description', this.aiDescription || '');
+      this.descrizioneAI = response.text;
+      this.historyService.addEntry('file', 'Descrizione Immagine', this.descrizioneAI || '');
     } catch (error) {
-      console.error('Error generating description:', error);
-      this.aiDescription = 'Errore durante la generazione della descrizione.';
+      console.error('Errore durante la generazione della descrizione:', error);
+      this.descrizioneAI = 'Errore durante la generazione della descrizione.';
     } finally {
-      this.isGeneratingDescription = false;
+      this.staGenerandoDescrizione = false;
     }
   }
 
@@ -245,8 +256,8 @@ export class FileConverterComponent implements OnInit {
     });
   }
 
-  async loadFFmpeg() {
-    if (this.ffmpegLoaded) return;
+  async caricaFFmpeg() {
+    if (this.ffmpegCaricato) return;
 
     this.ffmpeg = new FFmpeg();
 
@@ -261,45 +272,45 @@ export class FileConverterComponent implements OnInit {
         coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
         wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
       });
-      this.ffmpegLoaded = true;
-      console.log('FFmpeg loaded successfully');
+      this.ffmpegCaricato = true;
+      console.log('FFmpeg caricato con successo');
     } catch (e) {
-      console.error('Failed to load FFmpeg:', e);
-      // Fallback or notify user if needed
+      console.error('Fallito caricamento FFmpeg:', e);
+      // Fallback o notifica utente se necessario
     }
   }
 
-  onDragOver(event: DragEvent) {
+  alTrascinamentoSopra(event: DragEvent) {
     event.preventDefault();
     event.stopPropagation();
-    this.isDragging = true;
+    this.staTrascinando = true;
   }
 
-  onDragLeave(event: DragEvent) {
+  alUscitaTrascinamento(event: DragEvent) {
     event.preventDefault();
     event.stopPropagation();
-    this.isDragging = false;
+    this.staTrascinando = false;
   }
 
-  onDrop(event: DragEvent) {
+  alRilascio(event: DragEvent) {
     event.preventDefault();
     event.stopPropagation();
-    this.isDragging = false;
+    this.staTrascinando = false;
 
     if (event.dataTransfer?.files.length) {
-      this.handleFile(event.dataTransfer.files[0]);
+      this.gestisciFile(event.dataTransfer.files[0]);
     }
   }
 
-  onFileSelected(event: Event) {
+  alFileSelezionato(event: Event) {
     const input = event.target as HTMLInputElement;
     if (input.files?.length) {
-      this.handleFile(input.files[0]);
+      this.gestisciFile(input.files[0]);
     }
   }
 
-  handleFile(file: File) {
-    const allowedTypes = [
+  gestisciFile(file: File) {
+    const tipiConsentiti = [
       'image/png',
       'image/jpeg',
       'image/webp',
@@ -313,9 +324,9 @@ export class FileConverterComponent implements OnInit {
       'text/plain',
     ];
 
-    // Check if type is allowed (loose check for extensions if mime type is missing or generic)
-    const ext = file.name.split('.').pop()?.toLowerCase();
-    const isAllowedExt = [
+    // Controllo estensione (controllo lasco se mime type mancante o generico)
+    const est = file.name.split('.').pop()?.toLowerCase();
+    const estConsentita = [
       'png',
       'jpg',
       'jpeg',
@@ -326,67 +337,69 @@ export class FileConverterComponent implements OnInit {
       'mp4',
       'pdf',
       'txt',
-    ].includes(ext || '');
+    ].includes(est || '');
 
-    if (!allowedTypes.some((t) => file.type.includes(t)) && !isAllowedExt) {
+    if (!tipiConsentiti.some((t) => file.type.includes(t)) && !estConsentita) {
       alert(
-        'File type not supported. Please select PNG, JPEG, WEBP, GIF, MP3, MP4, WAV, PDF, or TXT.'
+        'Tipo di file non supportato. Seleziona PNG, JPEG, WEBP, GIF, MP3, MP4, WAV, PDF, o TXT.'
       );
-      this.selectedFile = null;
+      this.fileSelezionato = null;
       return;
     }
 
-    this.selectedFile = file;
+    this.fileSelezionato = file;
 
-    // Set default target format based on type
-    if (this.isImage(file)) {
-      this.targetFormat = 'image/jpeg';
+    // Imposta formato destinazione default
+    if (this.eImmagine(file)) {
+      this.formatoDestinazione = 'image/jpeg';
       const reader = new FileReader();
       reader.onload = (e) => {
-        this.previewUrl = e.target?.result as string;
+        this.urlAnteprima = e.target?.result as string;
       };
       reader.readAsDataURL(file);
-    } else if (this.isDoc(file)) {
-      this.targetFormat = 'application/pdf';
-      this.previewUrl = null;
-    } else if (this.isVideo(file)) {
-      this.targetFormat = 'audio/mp3'; // Default video to audio
-      this.previewUrl = null;
-    } else if (this.isAudio(file)) {
-      this.targetFormat = 'audio/mp3';
-      this.previewUrl = null;
+    } else if (this.eDocumento(file)) {
+      this.formatoDestinazione = 'application/pdf';
+      this.urlAnteprima = null;
+    } else if (this.eVideo(file)) {
+      this.formatoDestinazione = 'audio/mp3'; // Default video to audio
+      this.urlAnteprima = null;
+    } else if (this.eAudio(file)) {
+      this.formatoDestinazione = 'audio/mp3';
+      this.urlAnteprima = null;
     } else {
-      this.targetFormat = 'image/jpeg';
-      this.previewUrl = null;
+      this.formatoDestinazione = 'image/jpeg';
+      this.urlAnteprima = null;
     }
   }
 
-  isImage(file: File): boolean {
+  eImmagine(file: File): boolean {
     return (
       file && (file.type.startsWith('image/') || /\.(jpg|jpeg|png|webp|gif)$/i.test(file.name))
     );
   }
 
-  isDoc(file: File): boolean {
+  eDocumento(file: File): boolean {
     return (
       file &&
       (file.type.includes('pdf') || file.type.includes('text') || /\.(pdf|txt)$/i.test(file.name))
     );
   }
 
-  isVideo(file: File): boolean {
+  eVideo(file: File): boolean {
     return file && (file.type.startsWith('video/') || /\.(mp4)$/i.test(file.name));
   }
 
-  isAudio(file: File): boolean {
+  eAudio(file: File): boolean {
     return file && (file.type.startsWith('audio/') || /\.(mp3|wav)$/i.test(file.name));
   }
 
-  isUnknown(file: File): boolean {
-    return !this.isImage(file) && !this.isDoc(file) && !this.isVideo(file) && !this.isAudio(file);
+  eSconosciuto(file: File): boolean {
+    return (
+      !this.eImmagine(file) && !this.eDocumento(file) && !this.eVideo(file) && !this.eAudio(file)
+    );
   }
 
-  formatSize(bytes: number): string {
+  formattaDimensione(bytes: number): string {
     if (bytes === 0) return '0 Bytes';
     const k = 1024;
     const sizes = ['Bytes', 'KB', 'MB', 'GB'];
@@ -394,44 +407,47 @@ export class FileConverterComponent implements OnInit {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   }
 
-  async convert() {
-    if (!this.selectedFile) return;
+  async converti() {
+    if (!this.fileSelezionato) return;
 
-    this.isConverting = true;
+    this.staConvertendo = true;
 
     try {
-      // Client-side conversion logic
-      if (this.targetFormat === 'application/pdf') {
-        await this.convertToPdf(this.selectedFile);
-      } else if (this.isImage(this.selectedFile) && this.targetFormat.startsWith('image/')) {
-        // Use Canvas for simple image-to-image conversion (except GIF maybe)
-        if (this.targetFormat.includes('gif') || this.selectedFile.type.includes('gif')) {
-          // Use FFmpeg for GIF
-          await this.convertWithFFmpeg(this.selectedFile);
+      // Logica conversione client-side
+      if (this.formatoDestinazione === 'application/pdf') {
+        await this.convertiInPdf(this.fileSelezionato);
+      } else if (
+        this.eImmagine(this.fileSelezionato) &&
+        this.formatoDestinazione.startsWith('image/')
+      ) {
+        // Usa Canvas per conversione semplice immagine-immagine (eccetto GIF forse)
+        if (this.formatoDestinazione.includes('gif') || this.fileSelezionato.type.includes('gif')) {
+          // Usa FFmpeg per GIF
+          await this.convertiConFFmpeg(this.fileSelezionato);
         } else {
-          await this.convertImageWithCanvas(this.selectedFile);
+          await this.convertiImmagineConCanvas(this.fileSelezionato);
         }
       } else {
-        // Use FFmpeg for Audio/Video
-        await this.convertWithFFmpeg(this.selectedFile);
+        // Usa FFmpeg per Audio/Video
+        await this.convertiConFFmpeg(this.fileSelezionato);
       }
 
       this.historyService.addEntry(
         'file',
-        this.selectedFile?.name || 'Unknown file',
-        `Converted to ${this.targetFormat}`
+        this.fileSelezionato?.name || 'File sconosciuto',
+        `Convertito in ${this.formatoDestinazione}`
       );
     } catch (error: any) {
-      console.error('Conversion failed', error);
-      alert('Conversion failed: ' + (error.message || error));
+      console.error('Conversione fallita', error);
+      alert('Conversione fallita: ' + (error.message || error));
     } finally {
-      this.isConverting = false;
+      this.staConvertendo = false;
     }
   }
 
-  async convertToPdf(file: File) {
-    if (this.isImage(file)) {
-      const imgData = await this.compressImage(file, Number(this.quality));
+  async convertiInPdf(file: File) {
+    if (this.eImmagine(file)) {
+      const imgData = await this.comprimiImmagine(file, Number(this.qualita));
       const pdf = new jsPDF();
       const imgProps = pdf.getImageProperties(imgData);
       const pdfWidth = pdf.internal.pageSize.getWidth();
@@ -446,11 +462,11 @@ export class FileConverterComponent implements OnInit {
       pdf.text(splitText, 10, 10);
       pdf.save(`${file.name.split('.')[0]}.pdf`);
     } else {
-      throw new Error('PDF conversion only supported for Images and Text files.');
+      throw new Error('Conversione PDF supportata solo per Immagini e file di Testo.');
     }
   }
 
-  private compressImage(file: File, quality: number): Promise<string> {
+  private comprimiImmagine(file: File, qualita: number): Promise<string> {
     return new Promise((resolve, reject) => {
       const img = new Image();
       img.onload = () => {
@@ -459,15 +475,15 @@ export class FileConverterComponent implements OnInit {
         canvas.height = img.height;
         const ctx = canvas.getContext('2d');
         if (!ctx) {
-          reject(new Error('Canvas context not available'));
+          reject(new Error('Contesto Canvas non disponibile'));
           return;
         }
-        // White background for transparency handling (JPEG)
+        // Sfondo bianco per gestione trasparenza (JPEG)
         ctx.fillStyle = '#FFFFFF';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         ctx.drawImage(img, 0, 0);
 
-        const dataUrl = canvas.toDataURL('image/jpeg', quality);
+        const dataUrl = canvas.toDataURL('image/jpeg', qualita);
         resolve(dataUrl);
       };
       img.onerror = (e) => reject(e);
@@ -475,7 +491,7 @@ export class FileConverterComponent implements OnInit {
     });
   }
 
-  async convertImageWithCanvas(file: File) {
+  async convertiImmagineConCanvas(file: File) {
     return new Promise<void>((resolve, reject) => {
       const img = new Image();
       img.onload = () => {
@@ -484,33 +500,33 @@ export class FileConverterComponent implements OnInit {
         canvas.height = img.height;
         const ctx = canvas.getContext('2d');
         if (!ctx) {
-          reject(new Error('Canvas context not available'));
+          reject(new Error('Contesto Canvas non disponibile'));
           return;
         }
 
-        // Handle transparency for JPEG
-        if (this.targetFormat.includes('jpeg') || this.targetFormat.includes('jpg')) {
+        // Gestione trasparenza per JPEG
+        if (this.formatoDestinazione.includes('jpeg') || this.formatoDestinazione.includes('jpg')) {
           ctx.fillStyle = '#FFFFFF';
           ctx.fillRect(0, 0, canvas.width, canvas.height);
         }
 
         ctx.drawImage(img, 0, 0);
 
-        let mime = this.targetFormat;
+        let mime = this.formatoDestinazione;
         if (mime === 'image/jpg') mime = 'image/jpeg';
 
         canvas.toBlob(
           (blob) => {
             if (blob) {
               const url = URL.createObjectURL(blob);
-              this.downloadUrl(url, this.getExtension(mime));
+              this.scaricaUrl(url, this.ottieniEstensione(mime));
               resolve();
             } else {
-              reject(new Error('Canvas toBlob failed'));
+              reject(new Error('Canvas toBlob fallito'));
             }
           },
           mime,
-          Number(this.quality)
+          Number(this.qualita)
         );
       };
       img.onerror = (e) => reject(e);
@@ -518,26 +534,26 @@ export class FileConverterComponent implements OnInit {
     });
   }
 
-  async convertWithFFmpeg(file: File) {
-    if (!this.ffmpegLoaded || !this.ffmpeg) {
-      // Try to load again
-      await this.loadFFmpeg();
-      if (!this.ffmpegLoaded || !this.ffmpeg) {
-        throw new Error('FFmpeg not loaded. Please check your internet connection.');
+  async convertiConFFmpeg(file: File) {
+    if (!this.ffmpegCaricato || !this.ffmpeg) {
+      // Prova a caricare di nuovo
+      await this.caricaFFmpeg();
+      if (!this.ffmpegCaricato || !this.ffmpeg) {
+        throw new Error('FFmpeg non caricato. Controlla la tua connessione internet.');
       }
     }
 
     const ffmpeg = this.ffmpeg;
-    const inputName = 'input' + this.getFileExtension(file.name);
-    const outputExt = this.getExtension(this.targetFormat);
+    const inputName = 'input' + this.ottieniEstensioneFile(file.name);
+    const outputExt = this.ottieniEstensione(this.formatoDestinazione);
     const outputName = 'output.' + outputExt;
 
     await ffmpeg.writeFile(inputName, await fetchFile(file));
 
-    // Build command
+    // Costruisci comando
     let args = ['-i', inputName];
 
-    // Quality/Settings
+    // Qualità/Impostazioni
     if (outputExt === 'mp3') {
       args.push('-b:a', '192k');
     } else if (outputExt === 'jpg' || outputExt === 'jpeg') {
@@ -549,12 +565,12 @@ export class FileConverterComponent implements OnInit {
     await ffmpeg.exec(args);
 
     const data = await ffmpeg.readFile(outputName);
-    const blob = new Blob([data as any], { type: this.targetFormat });
+    const blob = new Blob([data as any], { type: this.formatoDestinazione });
     const url = URL.createObjectURL(blob);
-    this.downloadUrl(url, outputExt);
+    this.scaricaUrl(url, outputExt);
   }
 
-  readFileAsDataURL(file: File): Promise<string> {
+  leggiFileComeDataURL(file: File): Promise<string> {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = (e) => resolve(e.target?.result as string);
@@ -563,11 +579,11 @@ export class FileConverterComponent implements OnInit {
     });
   }
 
-  getFileExtension(filename: string): string {
+  ottieniEstensioneFile(filename: string): string {
     return '.' + filename.split('.').pop();
   }
 
-  getExtension(mime: string): string {
+  ottieniEstensione(mime: string): string {
     if (mime.includes('jpeg') || mime.includes('jpg')) return 'jpg';
     if (mime.includes('png')) return 'png';
     if (mime.includes('webp')) return 'webp';
@@ -580,11 +596,11 @@ export class FileConverterComponent implements OnInit {
     return 'bin';
   }
 
-  downloadUrl(url: string, ext: string) {
+  scaricaUrl(url: string, est: string) {
     const a = document.createElement('a');
     a.href = url;
-    const originalName = this.selectedFile?.name.split('.')[0] || 'converted';
-    a.download = `${originalName}.${ext}`;
+    const nomeOriginale = this.fileSelezionato?.name.split('.')[0] || 'convertito';
+    a.download = `${nomeOriginale}.${est}`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);

@@ -5,11 +5,11 @@ import { ConverterService } from '../../services/converter.service';
 import { HistoryService } from '../../services/history.service';
 
 /**
- * Component for text manipulation.
- * Offers basic operations (uppercase, lowercase, reverse) and AI-powered features (summarization, enhancement).
+ * Componente per la manipolazione del testo.
+ * Offre operazioni di base (maiuscolo, minuscolo, inversione) e funzionalità AI (riassunto, miglioramento).
  */
 @Component({
-  selector: 'app-text-manipulator',
+  selector: 'app-manipolatore-testo',
   standalone: true,
   imports: [CommonModule, FormsModule],
   template: `
@@ -20,7 +20,7 @@ import { HistoryService } from '../../services/history.service';
         <div>
           <label class="form-label">Testo di Input</label>
           <textarea
-            [(ngModel)]="inputText"
+            [(ngModel)]="testoInput"
             rows="4"
             class="form-input"
             placeholder="Inserisci il testo qui..."
@@ -29,38 +29,38 @@ import { HistoryService } from '../../services/history.service';
 
         <div class="flex flex-col gap-3">
           <div class="flex flex-wrap justify-center gap-2">
-            <button (click)="manipulate('uppercase')" class="btn-secondary">ABC</button>
-            <button (click)="manipulate('lowercase')" class="btn-secondary">abc</button>
-            <button (click)="manipulate('reverse')" class="btn-secondary">cbA</button>
+            <button (click)="manipola('uppercase')" class="btn-secondary">ABC</button>
+            <button (click)="manipola('lowercase')" class="btn-secondary">abc</button>
+            <button (click)="manipola('reverse')" class="btn-secondary">cbA</button>
           </div>
           <div class="flex flex-wrap justify-center gap-2">
-            <button (click)="manipulate('word_count')" class="btn-secondary px-3 py-1.5">
+            <button (click)="manipola('word_count')" class="btn-secondary px-3 py-1.5">
               Conta parole
             </button>
-            <button (click)="manipulate('char_count')" class="btn-secondary px-3 py-1.5">
+            <button (click)="manipola('char_count')" class="btn-secondary px-3 py-1.5">
               Conta caratteri
             </button>
           </div>
           <div class="flex flex-wrap justify-center gap-2">
-            <button (click)="summarize()" class="btn-primary">✨ Riassunto AI</button>
-            <button (click)="enhanceText()" class="btn-primary">🚀 AI Text Enhancer</button>
+            <button (click)="riassumi()" class="btn-primary">✨ Riassunto AI</button>
+            <button (click)="miglioraTesto()" class="btn-primary">🚀 AI Text Enhancer</button>
           </div>
         </div>
 
-        <div *ngIf="loading" class="text-center text-gray-500 dark:text-gray-400">
+        <div *ngIf="caricamento" class="text-center text-gray-500 dark:text-gray-400">
           Elaborazione...
         </div>
 
-        <div *ngIf="result !== null && !loading" class="mt-6">
+        <div *ngIf="risultato !== null && !caricamento" class="mt-6">
           <div class="flex justify-between items-center mb-1">
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300"
               >Risultato</label
             >
             <button
-              (click)="copyResult()"
+              (click)="copiaRisultato()"
               class="text-xs flex items-center gap-1 text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 transition-colors"
             >
-              <span *ngIf="!copied">
+              <span *ngIf="!copiato">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
                     stroke-linecap="round"
@@ -71,7 +71,7 @@ import { HistoryService } from '../../services/history.service';
                 </svg>
               </span>
               <span
-                *ngIf="copied"
+                *ngIf="copiato"
                 class="flex items-center gap-1 text-green-600 dark:text-green-400"
               >
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -84,110 +84,122 @@ import { HistoryService } from '../../services/history.service';
                 </svg>
                 Copiato!
               </span>
-              <span *ngIf="!copied">Copia</span>
+              <span *ngIf="!copiato">Copia</span>
             </button>
           </div>
           <div
             class="p-4 bg-gray-100 dark:bg-slate-900/50 rounded-md border border-gray-200 dark:border-indigo-500/30 text-gray-900 dark:text-white whitespace-pre-wrap"
           >
-            {{ result }}
+            {{ risultato }}
           </div>
         </div>
 
         <div
-          *ngIf="error"
+          *ngIf="errore"
           class="mt-4 p-4 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-md border border-red-200 dark:border-red-500/30"
         >
-          {{ error }}
+          {{ errore }}
         </div>
       </div>
     </div>
   `,
   styles: [],
 })
-export class TextManipulatorComponent {
+export class ManipolatoreTestoComponent {
   private converterService = inject(ConverterService);
   private historyService = inject(HistoryService);
 
-  inputText: string = '';
-  result: any = null;
-  loading = false;
-  error: string | null = null;
-  copied = false;
+  testoInput: string = '';
+  risultato: any = null;
+  caricamento = false;
+  errore: string | null = null;
+  copiato = false;
 
-  async manipulate(operation: string) {
-    if (!this.inputText) return;
+  async manipola(operazione: string) {
+    if (!this.testoInput) return;
 
-    this.loading = true;
-    this.error = null;
-    this.result = null;
+    this.caricamento = true;
+    this.errore = null;
+    this.risultato = null;
 
     try {
-      const response = await this.converterService.manipulateText(this.inputText, operation);
-      this.result = response.result;
-      this.historyService.addEntry('text', `Operation: ${operation}`, this.result || '');
+      const response = await this.converterService.manipulateText(this.testoInput, operazione);
+      this.risultato = response.result;
+      this.historyService.addEntry(
+        'text',
+        `Operazione: ${operazione}`,
+        this.risultato || ''
+      );
     } catch (err: any) {
-      this.error = 'Operation failed. Please try again.';
+      this.errore = 'Operazione fallita. Riprova.';
       console.error(err);
     } finally {
-      this.loading = false;
+      this.caricamento = false;
     }
   }
 
-  async summarize() {
-    if (!this.inputText) return;
+  async riassumi() {
+    if (!this.testoInput) return;
 
-    this.loading = true;
-    this.error = null;
-    this.result = null;
+    this.caricamento = true;
+    this.errore = null;
+    this.risultato = null;
 
     try {
-      const prompt = `Riassumi il seguente testo in italiano. Rispondi SOLO con il riassunto, senza preamboli come "Ecco il riassunto" o "Certamente".\n\nTesto:\n${this.inputText}`;
+      const prompt = `Riassumi il seguente testo in italiano. Rispondi SOLO con il riassunto, senza preamboli come "Ecco il riassunto" o "Certamente".\n\nTesto:\n${this.testoInput}`;
       const resp: any = await this.converterService.generateContent(prompt);
-      this.result = resp.text ?? resp.result ?? resp.output ?? JSON.stringify(resp);
-      this.historyService.addEntry('text', 'AI Summary', this.result || '');
-      this.loading = false;
+      this.risultato = resp.text ?? resp.result ?? resp.output ?? JSON.stringify(resp);
+      this.historyService.addEntry(
+        'text',
+        'Riassunto AI',
+        this.risultato || ''
+      );
+      this.caricamento = false;
     } catch (err: any) {
-      console.error('Summary error:', err);
-      this.error =
+      console.error('Errore riassunto:', err);
+      this.errore =
         'Errore durante la generazione del riassunto. Verifica la chiave API o la connessione.';
       if (err.error?.error?.message) {
-        this.error += ` (${err.error.error.message})`;
+        this.errore += ` (${err.error.error.message})`;
       }
-      this.loading = false;
+      this.caricamento = false;
     }
   }
 
-  async enhanceText() {
-    if (!this.inputText) return;
+  async miglioraTesto() {
+    if (!this.testoInput) return;
 
-    this.loading = true;
-    this.error = null;
-    this.result = null;
+    this.caricamento = true;
+    this.errore = null;
+    this.risultato = null;
 
     try {
-      const prompt = `Migliora il seguente testo in italiano, correggendo la grammatica e rendendolo più professionale e fluido. Rispondi SOLO con il testo migliorato, senza commenti aggiuntivi.\n\nTesto:\n${this.inputText}`;
+      const prompt = `Migliora il seguente testo in italiano, correggendo la grammatica e rendendolo più professionale e fluido. Rispondi SOLO con il testo migliorato, senza commenti aggiuntivi.\n\nTesto:\n${this.testoInput}`;
       const resp: any = await this.converterService.generateContent(prompt);
-      this.result = resp.text ?? resp.result ?? resp.output ?? JSON.stringify(resp);
-      this.historyService.addEntry('text', 'AI Enhancement', this.result || '');
-      this.loading = false;
+      this.risultato = resp.text ?? resp.result ?? resp.output ?? JSON.stringify(resp);
+      this.historyService.addEntry(
+        'text',
+        'Miglioramento AI',
+        this.risultato || ''
+      );
+      this.caricamento = false;
     } catch (err: any) {
-      console.error('Enhancement error:', err);
-      this.error =
+      console.error('Errore miglioramento:', err);
+      this.errore =
         'Errore durante il miglioramento del testo. Verifica la chiave API o la connessione.';
       if (err.error?.error?.message) {
-        this.error += ` (${err.error.error.message})`;
+        this.errore += ` (${err.error.error.message})`;
       }
-      this.loading = false;
+      this.caricamento = false;
     }
   }
 
-  copyResult() {
-    if (this.result) {
-      navigator.clipboard.writeText(this.result).then(() => {
-        this.copied = true;
+  copiaRisultato() {
+    if (this.risultato) {
+      navigator.clipboard.writeText(this.risultato).then(() => {
+        this.copiato = true;
         setTimeout(() => {
-          this.copied = false;
+          this.copiato = false;
         }, 2000);
       });
     }
