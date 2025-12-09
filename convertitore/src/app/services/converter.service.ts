@@ -59,10 +59,11 @@ export class ConverterService {
       const models = response.models || [];
       // Filter for models that support content generation
       // Escludiamo esplicitamente modelli TTS (Text-to-Speech) o Audio che non generano testo
-      const generateModels = models.filter((m: any) =>
-        m.supportedGenerationMethods?.includes('generateContent') &&
-        !m.name.toLowerCase().includes('tts') &&
-        !m.name.toLowerCase().includes('audio')
+      const generateModels = models.filter(
+        (m: any) =>
+          m.supportedGenerationMethods?.includes('generateContent') &&
+          !m.name.toLowerCase().includes('tts') &&
+          !m.name.toLowerCase().includes('audio')
       );
 
       // Ordina dinamicamente per trovare il modello più recente disponibile
@@ -80,9 +81,9 @@ export class ConverterService {
         // Anche se è una versione precedente (es. 1.5-flash vs 3.0-pro), per un'app pubblica la stabilità è prioritaria.
         const isFlashA = a.name.toLowerCase().includes('flash');
         const isFlashB = b.name.toLowerCase().includes('flash');
-        
+
         if (isFlashA && !isFlashB) return -1; // A (Flash) viene prima
-        if (!isFlashA && isFlashB) return 1;  // B (Flash) viene prima
+        if (!isFlashA && isFlashB) return 1; // B (Flash) viene prima
 
         // 2. Ordina per versione decrescente (es. 1.5 > 1.0)
         if (vB !== vA) return vB - vA;
@@ -142,27 +143,30 @@ export class ConverterService {
       return { text: 'No response generated.' };
     } catch (error: any) {
       console.error('Gemini API Error:', error);
-      
+
       // Gestione automatica del retry per errori 429
       const errorMessage = error.error?.error?.message || '';
-      const isQuotaError = error.status === 429 || errorMessage.includes('Quota exceeded') || errorMessage.includes('429');
-      
+      const isQuotaError =
+        error.status === 429 ||
+        errorMessage.includes('Quota exceeded') ||
+        errorMessage.includes('429');
+
       if (isQuotaError && errorMessage.includes('Please retry in')) {
         const match = errorMessage.match(/Please retry in ([0-9.]+)s/);
         if (match) {
           const seconds = Math.ceil(parseFloat(match[1])) + 1; // +1s buffer
           console.log(`Quota exceeded. Retrying in ${seconds} seconds...`);
-          
+
           // Lancia un errore speciale che il componente può intercettare per mostrare il countdown
           throw {
             isRetryable: true,
             retryInSeconds: seconds,
             originalError: error,
-            retryFunction: () => this.generateContent(prompt, imageBase64)
+            retryFunction: () => this.generateContent(prompt, imageBase64),
           };
         }
       }
-      
+
       throw error;
     }
   }
@@ -188,7 +192,8 @@ export class ConverterService {
   getFriendlyErrorMessage(err: any): string | null {
     // Gestione specifica per errore 429 (Too Many Requests) o errori di quota
     const errorMessage = err.error?.error?.message || '';
-    const isQuotaError = err.status === 429 || errorMessage.includes('Quota exceeded') || errorMessage.includes('429');
+    const isQuotaError =
+      err.status === 429 || errorMessage.includes('Quota exceeded') || errorMessage.includes('429');
 
     if (isQuotaError) {
       if (errorMessage.includes('Please retry in')) {
@@ -199,7 +204,7 @@ export class ConverterService {
       }
       return 'Limite richieste raggiunto. Riprova tra qualche secondo.';
     }
-    
+
     return null;
   }
 }

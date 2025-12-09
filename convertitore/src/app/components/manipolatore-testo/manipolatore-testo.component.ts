@@ -153,7 +153,7 @@ export class ManipolatoreTestoComponent {
         this.gestisciAttesaERiprova(err.retryInSeconds, () => this.riassumi());
         return;
       }
-      
+
       console.error('Errore riassunto:', err);
       const friendlyError = this.converterService.getFriendlyErrorMessage(err);
       if (friendlyError) {
@@ -207,7 +207,7 @@ export class ManipolatoreTestoComponent {
   private gestisciAttesaERiprova(secondi: number, callback: () => Promise<void>) {
     let countdown = secondi;
     this.errore = `Limite richieste raggiunto. Riprovo automaticamente tra ${countdown} secondi...`;
-    
+
     const interval = setInterval(() => {
       countdown--;
       if (countdown <= 0) {
